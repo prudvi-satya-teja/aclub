@@ -1,0 +1,148 @@
+import 'package:flutter/material.dart';
+import 'onboarding.dart';
+
+class TermsAndConditionsScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final textScaleFactor = MediaQuery.of(context).textScaleFactor;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Terms and Conditions',
+          style: _appBarTitleStyle(screenSize),
+        ),
+        backgroundColor: Colors.deepPurple,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            // Navigate to the OnboardingScreen
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => OnboardingScreen()),
+            );
+          },
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.deepPurpleAccent, Colors.deepPurple],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(screenSize.width * 0.03),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // _buildHeader(screenSize),
+                SizedBox(height: screenSize.height * 0.02),
+                _buildSection('1. Welcome to STrack App',
+                    'Thank you for using the STrack an College App made by students. This platform is designed to provide Aditya students with easy access to their academic details, attendance, and other resources. Please read the following terms and conditions carefully before using the app.',
+                    screenSize),
+                _buildSection('2. User Agreement',
+                    'By using the STrack App, you agree to follow all regulations and policies. You are responsible for providing accurate information and keeping your login credentials secure.',
+                    screenSize),
+                _buildSection('3. Privacy Policy',
+                    'Your personal data is treated with the highest priority. The privacy policy details how your information is collected, used, and protected. By using the app, you agree to our data handling practices.',
+                    screenSize),
+                _buildSection('4. Academic Information',
+                    'The app provides details on your courses, attendance, timetable, and academic pdfs. The Aditya University is not liable for any discrepancies; students are encouraged to verify the data regularly.',
+                    screenSize),
+                _buildSection('5. Notifications and Updates',
+                    'The app will send updates regarding class schedules, exam notifications, and important announcements. Ensure notifications are enabled to stay informed.',
+                    screenSize),
+                _buildSection('6. Limitation of Liability',
+                    'The Developers are not responsible for any issues arising from the misuse of the app. It is the user’s responsibility to use the app appropriately and verify the accuracy of the information provided.',
+                    screenSize),
+                _buildSection('7. Modifications to Terms',
+                    'The Developers reserve the right to update these terms at any time. Any major changes will be communicated through the app. Your continued use of the app implies acceptance of these changes.',
+                    screenSize),
+                _buildSection('8. Contact Us',
+                    'If you have any questions or concerns about the app or its usage, please contact the student support team at 22A91A0570.aec.edu.in',
+                    screenSize),
+                _buildFooter(screenSize),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  TextStyle _appBarTitleStyle(Size screenSize) {
+    return TextStyle(
+      fontFamily: 'RobotoSlab',
+      fontWeight: FontWeight.bold,
+      fontSize: screenSize.width * 0.06,
+      color: Colors.white,
+    );
+  }
+
+// Widget _buildHeader(Size screenSize) {
+//     return Center(
+//       child: Text(
+//         'Welcome to S Track',
+//         style: TextStyle(
+//           fontFamily: 'RobotoSlab',
+//           fontWeight: FontWeight.bold,
+//           fontSize: screenSize.width * 0.05,
+//           color: Colors.white,
+//         ),
+//       ),
+//     );
+//   }
+
+  Widget _buildSection(String title, String content, Size screenSize) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle(title, screenSize),
+        SizedBox(height: screenSize.height * 0.01),
+        _buildSectionContent(content, screenSize),
+        SizedBox(height: screenSize.height * 0.03),
+      ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title, Size screenSize) {
+    return Text(
+      title,
+      style: TextStyle(
+        fontFamily: 'RobotoSlab',
+        fontWeight: FontWeight.bold,
+        fontSize: screenSize.width * 0.055,
+        color: Colors.orangeAccent,
+      ),
+    );
+  }
+
+  Widget _buildSectionContent(String content, Size screenSize) {
+    return Text(
+      content,
+      style: TextStyle(
+        fontSize: screenSize.width * 0.045,
+        color: Colors.white70,
+        height: 1.5,
+      ),
+    );
+  }
+
+  Widget _buildFooter(Size screenSize) {
+    return Center(
+      child: Text(
+        'Built with ❤️ by Prudvi, Suchandra.',
+        style: TextStyle(
+          fontFamily: 'RobotoSlab',
+          fontStyle: FontStyle.italic,
+          fontSize: screenSize.width * 0.03,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
