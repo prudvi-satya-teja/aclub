@@ -10,11 +10,11 @@ class AClubApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ACLUB',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      initialRoute: AppRoutes.splash,
-      routes: AppRoutes.routes,
+      theme: AppTheme.lightTheme, // Light theme configuration
+      darkTheme: AppTheme.darkTheme, // Dark theme configuration
+      themeMode: ThemeMode.system, // Use system theme preference
+      initialRoute: AppRoutes.splash, // Set the initial route
+      onGenerateRoute: AppRoutes.onGenerateRoute, // Handle dynamic routing
     );
   }
 }

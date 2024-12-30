@@ -1,25 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'app.dart';
-import 'dart:async';
 import 'package:device_preview/device_preview.dart';
-import 'package:flutter/foundation.dart' show kReleaseMode;
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/foundation.dart';
 import 'routes/app_routes.dart';
-
-
-
+import 'features/splash/presentation/splash_screen.dart'; // Adjust import to the correct splash screen location
 
 void main() {
   runApp(
-      DevicePreview(
-        enabled: !kReleaseMode, // Enable DevicePreview in debug mode
-        builder: (context) => AClubApp(), // Launch MyApp
-      ),
+    DevicePreview(
+      enabled: !kReleaseMode, // Enable DevicePreview in debug mode
+      builder: (context) => const AClubApp(),
+    ),
   );
 }
-
 
 class AClubApp extends StatelessWidget {
   const AClubApp({Key? key}) : super(key: key);
@@ -35,31 +27,8 @@ class AClubApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const SplashScreen(),
+      initialRoute: AppRoutes.splash, // Updated to use the initial route from AppRoutes
       routes: AppRoutes.routes, // Defined in app_routes.dart
-    );
-  }
-}
-
-class SplashScreen extends StatelessWidget {
-  const SplashScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            CircularProgressIndicator(),
-            SizedBox(height: 20),
-            Text(
-              'Welcome to ACLUB',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
