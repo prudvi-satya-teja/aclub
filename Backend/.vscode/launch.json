@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "d:/Nodejs/clubs",
-      "program": "d:/Nodejs/clubs/build/Debug/outDebug",
+      "cwd": "d:/Nodejs/ACLUB/Backend",
+      "program": "d:/Nodejs/ACLUB/Backend/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
