@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Club = require('../models/club_model');
 
 // to create a club
-const handleCreateClub = async(req, res) => {
+const createClub = async(req, res) => {
     try {
         if(await Club.findOne({name: req.body.name}) || await Club.findOne({clubId: req.body.clubId})){
           return res.status(201).json({ "success": false, "msg" : "club with name or id already exists"});
@@ -27,9 +27,8 @@ const handleCreateClub = async(req, res) => {
     }
 }
 
-
 // to delete a club
-const handleDeleteClub = async(req, res) => {
+const deleteClub = async(req, res) => {
     try {
         const club = { name: req.body.name, clubId: req.body.clubId}
         if(!(await Club.findOne(club)))  {
@@ -47,7 +46,7 @@ const handleDeleteClub = async(req, res) => {
 }
 
 //  to update club
-const handleUpdateClub = async(req, res) => {
+const updateClub = async(req, res) => {
     const prevclub = { name: req.body.prevname, clubId: req.body.prevId}
     const updateClub = { name: req.body.newname, clubId: req.body.newId}
     try{
@@ -65,7 +64,7 @@ const handleUpdateClub = async(req, res) => {
 }
 
 // to get all clubs
-const handleGetAllClubs = async(req, res) => {
+const getAllClubs = async(req, res) => {
     try {
         const clubs = await Club.find();
         if(clubs) return res.status(201).json(clubs);
@@ -78,9 +77,9 @@ const handleGetAllClubs = async(req, res) => {
 }
 
 module.exports = {
-    handleCreateClub,
-    handleDeleteClub,
-    handleUpdateClub,
-    handleGetAllClubs
+    createClub,
+    deleteClub,
+    updateClub,
+    getAllClubs
 }
 

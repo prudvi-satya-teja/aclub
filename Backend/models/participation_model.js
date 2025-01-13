@@ -1,18 +1,16 @@
 const mongoose = require("mongoose")
 
-const participationSchema = new mongoose.Schema({
-    user: {
-        type: mongoose.Types.ObjectId,
-        ref: "users"
-    },
-    club: {
-        type: mongoose.Types.ObjectId,
-        ref: "clubs"
+const participationSchema = new mongoose.Schema(
+    {
+        userId: {  type: mongoose.Schema.Types.ObjectId,   ref: "users"  },
+        clubId: {  type: mongoose.Schema.Types.ObjectId,    ref: "clubs" },
+        role:{ type: String, enum: ["user", "admin"], default: "user" }
+    }, 
+    {
+        timestamps: true
     }
-}, {
-    timestamps: true
-})
+)
 
-const Participation = new mongoose.model("participation", participationSchema);
+const Participation = mongoose.model("participation", participationSchema);
 
-module.exports = { Participation }
+module.exports = Participation;

@@ -27,16 +27,16 @@ const demoStorage = multer.diskStorage({
 const uploadImage = multer({storage: demoStorage}).single("clubImage");
 
 // create club
-router.post('/create-club', uploadImage, clubController.handleCreateClub);
+router.post('/create-club', uploadImage, clubController.createClub);
 
 // update club
-router.patch('/update-club', clubController.handleUpdateClub);
+router.patch('/update-club', clubController.updateClub);
 
 // delete club
-router.delete('/delete-club', clubController.handleDeleteClub);
+router.delete('/delete-club', clubController.deleteClub);
 
 // get all clubs
-router.get('/get-all-clubs', clubController.handleGetAllClubs);
+router.get('/get-all-clubs', clubController.getAllClubs);
 
 
 module.exports = {
