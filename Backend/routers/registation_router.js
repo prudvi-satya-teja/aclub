@@ -1,5 +1,5 @@
 const express = require('express');
-const registrationController = require('../controllers/');
+const registrationController = require('../controllers/registration_controllers');
 
 const router = express.Router();
 
@@ -17,6 +17,8 @@ router.post('/give-feedback', registrationController.giveFeedback);
 // get event feedback
 router.get('/get-feedback', registrationController.getEventFeedback);
 
+//get average raing
+router.get('/get-average-rating', registrationController.getAverageRating);
 module.exports = {
     router
 }

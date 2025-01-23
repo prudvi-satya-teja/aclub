@@ -2,88 +2,113 @@ const mongoose = require('mongoose');
 const User = require('../models/user_model');
 const Participation  = require('../models/participation_model');
 const bcrypt = require('bcrypt');
+const Club = require('../models/club_model');
 
 // to add user
 const addUser = async(req, res) => {
     try {
-        if(!req.body.firstName || !req.body.rollNo || !req.body.clubName) {
-            return res.status(200).json({"Status" : "fail", "msg": "Please enter all details"});
+        if(!req.body.firstName || !req.body.rollNo || !req.body.clubId) {
+            return res.status(200).json({"Status" : false, "msg": "Please enter all details"});
+        }      
+
+        const club = await Club.findOne({clubId: req.body.clubId});
+        if(!club) {
+            return res.status(400).json({"status": false, "msg": "club not found"});
+        }
+
+        var user = await User.findOne({rollNo: req.body.rollNo});
+
+        if(!user) {
+            if(await User.findOne({phoneNo: req.body.phoneNo})) {
+                return res.status(400).json({"status": false, "msg": "Phone no already exists"});
+            }
+            var userData = {
+                firstName: req.body.firstName, 
+                lastName: req.body.lastName, 
+                rollNo: req.body.rollNo,  
+                phoneNo: req.body.phoneNo, 
+                password: await bcrypt.hash(req.body.password, 12)
+            }
+            
+            var newUser = new User(userData);
+            user = User.create(newUser);
+            // console.log(user);
         }
         
-        var userData = {
-            firstName: req.body.firstName, 
-            lastName: req.body.lastName, 
-            rollNo: req.body.rollNo,  
-            phoneNo: req.body.phoneNo, 
-            password: await bcrypt.hash(req.body.password, 12)
-        }
-
         var participationData = {
-            eventName: req.body.clubName,
-            rollNo: req.body.rollNo,
-            role : req.body.role,
+            clubId : club._id,
+            userId : user._id,
         }
 
-        if(await Participation.findOne({clubName: req.body.eventName , rollNo: req.body.rollNo})) {
-            return res.status(400).json({"Status": "fail", "msg": "User already exists in the club"});
+        var role = req.body.role ? req.body.role: "user";
+
+        // console.log(participationData)
+        var participation = await Participation.findOne(participationData);
+        if(participation) {
+            if(participation.role == req.body.role) {
+                return res.status(400).json({"Status": false, "msg": "User already exists in the club"});
+            }
+            else {
+                var result = await Participation.findOneAndUpdate(participation,  {role: req.body.role});
+                return res.status(400).json({"Status": true, "msg": "User updated with the provided role", "user": user, "participation": result});
+            }
+
         }
 
-        var newUser = new User(userData);
-        var resultUser = User.create(newUser);
-        console.log(resultUser);
-
-        var newParticipation = new Participation(participationData);
-        var resultParticipation = Participation.create(newParticipation);
-        console.log(resultParticipation);
-        return res.status(200).json({"Status": "fail", "msg": "User Creation Successful"});
+        var newParticipation = new Participation({participationData, role: role } );
+        var resultParticipation =await  newParticipation.save();
+        // console.log(resultParticipation);
+        return res.status(200).json({"Status": true, "msg": "User Creation Successful", "participation": resultParticipation, "user": user});
     }
     catch(err) {
-        console.log(err);
-        return res.status(500).json({"Status": "fail", "msg": "Server Error" });
+        console.error(err);
+        return res.status(500).json({"Status": false, "msg": "Server Error" });
     }
 }
 
-// to get user details
+// to get user details  // need to add club and their roles 
 const getUserDetails = async(req, res) => {
     try {
         if(!req.body.rollNo) {
-            return res.status(400).json({"status": "Fail", "msg": "Please enter valid rollno"});
+            return res.status(400).json({"status": false, "msg": "Please enter valid rollno"});
         }
-        var user = await User.findOne({rollNo: req.body.rollNo});
+        var user = await User.findOne({rollNo: req.body.rollNo}, {firstName: 1, lastName: 1, rollNo: 1, phoneNo: 1});
         console.log(user);
+        if(!user) {
+            return res.status(500).json({"Status": true, "msg": "user not exists"});
+        }
         // need to get the club participated and their roles
-        return res.status(500).json({"Status": "fail",  "msg": "Successfully get user details"});
+        return res.status(500).json({"Status": true,  "msg": "Successfully get user details", "details": user});
     }
     catch(err) {
-        return res.status(500).json({"Status": "Fail", "msg": ""})
+        return res.status(500).json({"Status": false, "msg": ""})
     }
 }
 
 // to update user details
 const updateUser = async(req, res) => {
     try {
-        if(!req.body.newfirstName || !req.body.oldRollNo || !req.body.newClubName || !req.body.newPhoneNo || !req.body.oldPassword || 
-            !req.body.newPassword
-        ) {
-            return res.status(200).json({"Status" : "fail", "msg": "Please enter all details"});
+        if(!req.body.rollNo && !req.body.password) {
+            return res.status(200).json({"Status" : false , "msg": "Please enter rollNo and password"});
         }
 
-        const user = await User.findOne({rollNo: oldRollNo});
-
+        const user = await User.findOne({rollNo: rollNo});
+        
         if(!user) {
-            return res.status(400).json({"Status": "Fail", "msg": "User doesn't exist"});
+            return res.status(400).json({"Status": false, "msg": "User doesn't exist"});
         }
-        if(!await bcrypt.compare(user.password, oldPassword)) {
-            return res.status(400).json({"Status": "Fail", "msg": "Please enter valid password"})
+
+        if(!await bcrypt.compare(user.password, req.body.password)) {
+            return res.status(400).json({"Status": false , "msg": "Please enter valid password"})
         }
         var userData = {
-            firstName: req.body.newfirstName, 
-            lastName: req.body.newlastName, 
-            rollNo: req.body.newrollNo,  
-            phoneNo: req.body.newphoneNo, 
-            password: await bcrypt.hash(req.body.newpassword, 12)
+            firstName: req.body.firstName ? user.firstName : req.body.firstName, 
+            lastName: req.body.lastName ? user.lastName : req.body.lastName, 
+            rollNo: req.body.newRollNo ? user.rollNo : req.body.newRollNo,  
+            phoneNo: req.body.phoneNo ? user.phoneNo : req.body.phoneNo, 
+            password: req.body.newpassword? user.password :  await bcrypt.hash(req.body.newpassword, 12)
         }
-
+    
         var newUser = new User(userData);
         var resultUser = User.findOneAndUpdate(user, newUser);
         console.log(resultUser);
@@ -140,7 +165,7 @@ const deleteUser = async(req, res) => {
     }
 }
 
-// to get all users
+// to get all users  // need to write the aggregations
 const getAllUsers = async(req, res) => {
     try {
         if(!req.body.clubName) {
@@ -151,16 +176,17 @@ const getAllUsers = async(req, res) => {
             [
                 {
                     $group : {
-                        _id: "$clubName",
-                    }
+                        _id: req.body.clubName,
+                    },
+                    $project : {}
                 }
             ]
         );
             // return res.status(200).json("Status": "Success", "msg": "Successful get all users")];
     }
     catch(err) {
-        console.log(err);
-        return ress.status(500).json({"status": "fail", "msg": "Server Error"});
+        console.error(err);
+        return res.status(500).json({"status": "fail", "msg": "Server Error"});
     }
 
 }

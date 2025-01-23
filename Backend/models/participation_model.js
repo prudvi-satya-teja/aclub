@@ -11,6 +11,6 @@ const participationSchema = new mongoose.Schema(
     }
 )
 
-const Participation = mongoose.model("participation", participationSchema);
+const Participation = mongoose.model('participations', participationSchema);
 
 module.exports = Participation;

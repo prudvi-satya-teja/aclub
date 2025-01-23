@@ -3,29 +3,40 @@ const eventDataController = require('../controllers/event_data_controllers');
 
 const router = express.Router();
 
-// to upload image or images
-router.post('/upload-images', eventDataController.uploadImage);
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
-// to upload video or videos
-router.post('/upload-video', eventDataController.uploadVideo);
+const imagePath = path.join(__dirname, '..', 'public', 'events_data');
+
+if(!fs.existsSync(imagePath)) {
+    fs.mkdirSync(imagePath, {recursive: true});
+}
+
+const demoStorage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        console.log("imagePath : ", imagePath);
+        cb(null, imagePath);
+    },
+    filename: function(req, file, cb) {
+        console.log("filename: ", file.originalname);
+        cb(null, file.originalname);
+    }
+})
+
+const uplaodImages = multer({storage: demoStorage}).array("eventImages");
+
+// to upload image or images
+router.post('/upload-images', uplaodImages, eventDataController.uploadImage);
 
 // to delete image or images
-router.post('/delete-video', eventDataController.deleteImage);
-
-// to delete video or videos
-router.post('/delete-video', eventDataController.deleteImage);
+router.post('/delete-images', uplaodImages, eventDataController.deleteImage);
 
 // to update image
-router.post('/update-image', eventDataController.updateImage);
-
-//to update video
-router.post('/update-video', eventDataController.updateVideo);
+// router.post('/update-image', uplaodImages, eventDataController.updateImage);
 
 // to get all images
 router.get('/get-all-images', eventDataController.getImages);
-
-// to get all videos
-router.get('/get-all-videos', eventDataController.getVideos);
 
 module.exports = {
     router

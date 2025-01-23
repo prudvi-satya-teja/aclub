@@ -1,21 +1,38 @@
+const Data = require('../models/events_data_model');
+const Event = require('../models/events_model');
 // to upload image
 const uploadImage = async(req, res) => {
     try {
-        if(!req.body.eventId || !req.body.imageUrl) {
-            return res.status(400).json({"status": false, "msg" : "please enter valid details"});
-        }
-        const event = Event.findOne({eventId: req.body.eventId});
+        const event = await Event.findOne({eventName: req.body.eventName});
         if(!event) {
-            return res.status(400).json({"Status": false, "msg": "Event doesn't exist"});
+            return res.status(400).json({"status": false, "msg": "event doesn't exists"});
         }
         
-        const result = await EventData.findOneAndUpdate(
-            {eventId: req.body.eventId},
-            { $addToSet : {images: req.body.imageurl}},
+        var imageUrls = req.files ? req.files.map(file=>file.path) : null;
+
+        if(!imageUrls) {
+            return res.status(400).json({"status": false, "msg": "file paths are not there"});
+        }
+    
+        let eventData = await Data.findOne({eventId: event._id});
+
+        if(!eventData) {
+            eventData = new Data({eventId: event._id});
+            await eventData.save();
+        }
+
+        // console.log("eventdata : " ,eventData);
+
+        const result = await Data.findOneAndUpdate(
+            {eventId: event._id },
+            { $addToSet : {images: {$each: imageUrls}}},
             { new : true, upsert:false}
         );
 
-        return res.status(200).json({"Status" : true, "msg": "image added Successfully"});
+
+        // console.log("resutl" , result);
+
+        return res.status(200).json({"Status" : true, "msg": "image added Successfully", "links": result});
     }
     catch(err) {
         console.log(err);
@@ -23,29 +40,46 @@ const uploadImage = async(req, res) => {
     }
 
 }
-
-// to upload video
-// const uploadVideo = async(req, res) => {
-// }
 
 // to delete image
 const deleteImage = async(req, res) => {
     try {
-        if(!req.body.eventId || !req.body.imageUrl) {
-            return res.status(400).json({"status": false, "msg" : "please enter valid details"});
-        }
-        const event = Event.findOne({eventId: req.body.eventId});
+        const event = await Event.findOne({eventName: req.body.eventName});
         if(!event) {
-            return res.status(400).json({"Status": false, "msg": "Event doesn't exist"});
+            return res.status(400).json({"status": false, "msg": "event doesn't exists"});
         }
         
-        const result = await EventData.findOneAndDelete(
-            {eventId: req.body.eventId},
-            { $pull : {images: req.body.imageurl}},
-            { new : true, upsert:false}
-        );
+        var imageUrls = req.files ? req.files.map(file=>file.path) : null;
 
-        return res.status(200).json({"Status" : true, "msg": "image added Successfully"});
+        if(!imageUrls) {
+            return res.status(400).json({"status": false, "msg": "file paths are not there"});
+        }
+        console.log("urls" ,imageUrls);
+        // const result = await Event.findOneAndUpdate(
+        //     {eventId: event._id},
+        //     { $pull : {images:{ $in: imageUrls}}},
+        //     { new : true}
+        // ); 
+
+        var currEventData = await Data.findOne({eventId: event._id});
+        
+        currEventData = await Data.aggregate([
+            {
+              '$unwind': {
+                'path': '$images'
+              }
+            }, {
+              '$match': {
+                '$nor': imageUrls
+              }
+            }
+          ]);
+
+          const result = await currEventData.save();
+
+        console.log(result);
+
+        return res.status(200).json({"Status" : true, "msg": "image deleted Successfully", "result": result});
     }
     catch(err) {
         console.log(err);
@@ -53,32 +87,21 @@ const deleteImage = async(req, res) => {
     }
 }
 
-// to delete video
-// const deleteVideo = async(req, res) => {
-// }
-
-// to update image
-// const updateImage = async(req, res) => {
-// }
-
-// to update video
-// const updateVideo = async(req, res) => {
-// }
 
 //to get Images
 const getImages = async(req, res) => {
     try {
-        const event = Event.findOne({eventId: req.body.eventId});
+        const event = await Event.findOne({eventName: req.body.eventName});
         if(!event) {
-            return res.status(400).json({"Status": false, "msg": "Event doesn't exist"});
+            return res.status(400).json({"status": false, "msg": "event doesn't exists"});
         }
         
-        const result = await EventData.findOne(
-            {eventId: req.body.eventId}
+        const result = await Data.findOne(
+            {eventId: event._id}
         );
 
         console.log(result.images);
-        return res.status(200).json({"Status" : true, "msg": "image added Successfully"});
+        return res.status(200).json({"Status" : true, "msg": "image added Successfully", "result": result.images});
     }
     catch(err) {
         console.log(err);
@@ -86,17 +109,8 @@ const getImages = async(req, res) => {
     }
 }
 
-// to get Videos
-// const getVideos = async(req, res) => {
-// }
-
 module.exports = {
     uploadImage,
-    uploadVideo,
     deleteImage,
-    deleteVideo,
-    updateImage,
-    updateVideo,
     getImages,
-    getVideos
 }

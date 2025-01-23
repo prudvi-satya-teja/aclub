@@ -30,7 +30,7 @@ const uploadImage = multer({storage: demoStorage}).single("clubImage");
 router.post('/create-club', uploadImage, clubController.createClub);
 
 // update club
-router.patch('/update-club', clubController.updateClub);
+router.patch('/update-club', uploadImage, clubController.updateClub);
 
 // delete club
 router.delete('/delete-club', clubController.deleteClub);

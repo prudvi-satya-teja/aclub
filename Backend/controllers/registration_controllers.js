@@ -1,55 +1,63 @@
 const Registration = require("../models/registrations_model");
+const Event = require('../models/events_model');
+const User = require("../models/user_model");
 
 // to register for an event
 const registerEvent = async(req, res) => {
     try {
-        const event = Event.findOne({eventId: req.body.eventId});
+        const event = await Event.findOne({eventName: req.body.eventName});
         if(!event) {
             return res.status(400).json({"status": false, "msg": "event doesn't exists"});
         }
 
-        if(!rollno) {
+        const user = await User.findOne({rollNo: req.body.rollNo});
+        console.log(user, req.body.rollNo);
+        if(!user) {
             return res.status(400).json({"status": false, "msg": "please enter valid rollno"});
         }
 
         const Data = {
-            eventId: req.body.eventId,
-            rollno: req.body.rollno,
+            eventId: event._id,
+            userId: user._id,
         }
-
+  
         const registration = new Registration(Data);
-        const result = await create(registration);
+        const result = await Registration.create(registration);
         console.log(result);
-        return res.status(200).json({"status": true, "msg": "Event registration Successful"});
+        return res.status(200).json({"status": true, "msg": "Event registration Successful", "registration": registration});
     }
     catch(err) {
-        console.log(err);
+        console.error(err);
         return res.json(500).json({"status": false, "msg": "server error"});
     }
 }
-
+ 
 // to give feedback
 const giveFeedback = async(req, res) => {
     try {
-        const event = Event.findOne({eventId: req.body.eventId});
+        const event = await Event.findOne({eventName: req.body.eventName});
         if(!event) {
             return res.status(400).json({"status": false, "msg": "event doesn't exists"});
         }
         if(!req.body.feedback || !req.body.rating) {
             return res.status(400).json({"status": false, "msg": "please giving feedback and rating"});
         }
-        const registration = await Registration.findOne({rollNo: req.body.rollNo, eventId : req.body.eventId});
+        const user = await User.findOne({rollNo: req.body.rollNo});
+        if(!user) {
+            return res.status(400).json({"status": false, "msg": "user not exists"});
+        }
+        const registration = await Registration.findOne({userId: user._id, eventId : event._id});
         if(!registration) {
             return res.status(400).json({"status": false, "msg": "you are not registered for the event"});
-        }
+        }   
 
         registration.feedback = req.body.feedback;
         registration.rating = req.body.rating;
         await registration.save();
-        return res.status(200).json({"status": false, "msg": "feedback submitted successfully"});
+        return res.status(200).json({"status": false, "msg": "feedback submitted successfully", feedback: registration});
     }
     catch(err) {
-        console.log(err);
+        console.error(err);
         return res.json(500).json({"status": false, "msg": "server error"});
     }
 }
@@ -57,12 +65,35 @@ const giveFeedback = async(req, res) => {
 // to get all registered Users for an event
 const getAllRegisteredUsers = async(req, res) => {
     try {
-        const event = Event.findOne({eventId: req.body.eventId});
+        const event = await Event.findOne({eventName: req.body.eventName});
         if(!event) {
             return res.status(400).json({"status": false, "msg": "event doesn't exists"});
         }
 
-        var registeredUsers =  Registration.aggregate([]);
+        var registeredUsers = await  Registration.aggregate([
+            {
+              '$match': {
+                'eventId': event._id
+              }
+            }, {
+              '$lookup': {
+                'from': 'users', 
+                'localField': 'userId', 
+                'foreignField': '_id', 
+                'as': 'result'
+              }
+            }, {
+              '$unwind': {
+                'path': '$result'
+              }
+            }, {
+              '$project': {
+                'rollNo': '$result.rollNo', 
+                'name': '$result.firstName', 
+                '_id': 0
+              }
+            }
+          ]);
         console.log(registeredUsers);
         return res.status(200).json({"status": true, "registered users: " : registeredUsers});
     }
@@ -75,14 +106,40 @@ const getAllRegisteredUsers = async(req, res) => {
 // to get event feedback
 const getEventFeedback = async(req, res) => {
     try {
-        const event = Event.findOne({eventId: req.body.eventId});
+        const event =await  Event.findOne({eventName: req.body.eventName});
         if(!event) {
             return res.status(400).json({"status": false, "msg": "event doesn't exists"});
         }
+        console.log(event._id);
         // get feedbac
-        var feedback = Registration.aggregate([]);
+        var feedback = await Registration.aggregate([
+          {
+            '$match': {
+              'eventId': event._id
+            }
+          }, {
+            '$lookup': {
+              'from': 'users', 
+              'localField': 'userId', 
+              'foreignField': '_id', 
+              'as': 'result'
+            }
+          }, {
+            '$unwind': {
+              'path': '$result'
+            }
+          }, {
+            '$project': {
+              'rollNo': '$result.rollNo', 
+              'name': '$result.firstName', 
+              '_id': 0, 
+              'feedback': 1, 
+              'rating': 1
+            }
+          }
+        ]);
         console.log(feedback);
-        return res.status(200).json({"status": false, "msg": "Successfully get Event feedback"});
+        return res.status(200).json({"status": true, "msg": "Successfully get Event feedback", "feedback": feedback});
     }
     catch(err) {
         console.log(err);
@@ -93,18 +150,41 @@ const getEventFeedback = async(req, res) => {
 // to get average rating
 const getAverageRating = async(req, res) => {
     try {
-        const event = Event.findOne({eventId: req.body.eventId});
+        const event = await Event.findOne({eventName: req.body.eventName});
         if(!event) {
             return res.status(400).json({"status": false, "msg": "event doesn't exists"});
         }
 
-        var averageRating = Registration.aggregate([]);
+        var averageRating = await Registration.aggregate([
+          {
+            '$match': {
+              'eventId': event._id
+            }
+          }, {
+            '$group': {
+              '_id': '$eventId', 
+              'avgrating': {
+                '$avg': '$rating'
+              }
+            }
+          }, {
+            '$unwind': {
+              'path': '$avgrating'
+            }
+          }, {
+            '$project': {
+              'avgrating': 1, 
+              '_id': 0
+            }
+          }
+        ]);
+          
         console.log(averageRating);
-        return res.status(200).json({"Status": true, "average Rating": averageRating});
+        return res.status(200).json({"average Rating": averageRating });
     }
     catch(err) {
-        console.log(err);
-        return res.json(500).json({"status": false, "msg": "server error"});
+        console.error(err);
+        return res.status(500).json({"status": false, "msg": "server error"});
     }
 }
 

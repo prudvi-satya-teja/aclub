@@ -4,10 +4,10 @@ const eventSchema = new mongoose.Schema(
     {
         clubId: {  type: mongoose.Schema.Types.ObjectId, ref: "Club", required: true },
         eventName: { type: String, unique: true, required: true },
-        date: { type: Date,  required: true },
+        date: { type: Date },
         guest: [{ type: String }],
-        location: { type: String,  required: true },
-        mainTheme: { type: String, required: true },
+        location: { type: String },
+        mainTheme: { type: String },
         details: { type: String },
         image: { type: String }
     },
@@ -16,7 +16,7 @@ const eventSchema = new mongoose.Schema(
     }
 )
 
-const Event = mongoose.Model('events', eventSchema);
+const Event = mongoose.model('events', eventSchema);
 
 module.exports = Event;
 

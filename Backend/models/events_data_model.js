@@ -1,17 +1,17 @@
 const mongoose = require('mongoose');
 
-const dataSchema =  new mongooose.Schema(
+const dataSchema =  new mongoose.Schema(
     {
         eventId: { type: mongoose.Schema.Types.ObjectId,  required: true },
-        images: [ { type: String, unique: true } ],
-        videos: [ { type: String, unique: true } ]
+        images: [ { type: String } ],
+        videos: [ { type: String } ]
     },  
     {
         timestamps: true,
     }
-)
+);
 
-const Data = mongoose.model('eventData', dataSchema);
+const Data = mongoose.model('eventdatas', dataSchema);
 
 module.exports = Data
 
