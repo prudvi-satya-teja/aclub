@@ -36,7 +36,7 @@ setInterval(() => {
     catch(e) {
 
     }
-}, 84000);
+}, 840000);
 
  
 const port = process.env.PORT || 5001
