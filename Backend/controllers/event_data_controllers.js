@@ -49,35 +49,21 @@ const deleteImage = async(req, res) => {
             return res.status(400).json({"status": false, "msg": "event doesn't exists"});
         }
         
-        var imageUrls = req.files ? req.files.map(file=>file.path) : null;
+        let imageUrls = req.files ? req.files.map(file => file.path) : null;
 
-        if(!imageUrls) {
+        if(!imageUrls || imageUrls.length == 0) {
             return res.status(400).json({"status": false, "msg": "file paths are not there"});
         }
-        console.log("urls" ,imageUrls);
-        // const result = await Event.findOneAndUpdate(
-        //     {eventId: event._id},
-        //     { $pull : {images:{ $in: imageUrls}}},
-        //     { new : true}
-        // ); 
-
-        var currEventData = await Data.findOne({eventId: event._id});
-        
-        currEventData = await Data.aggregate([
-            {
-              '$unwind': {
-                'path': '$images'
-              }
-            }, {
-              '$match': {
-                '$nor': imageUrls
-              }
-            }
-          ]);
-
-          const result = await currEventData.save();
-
-        console.log(result);
+        // console.log("urls" ,imageUrls);
+        const result = await Data.findOneAndUpdate(
+            {eventId: event._id},
+            { $pull : {images:{ $in: imageUrls}}},
+            { new : true}
+        ); 
+        // console.log(result);
+        if (!result) {
+            return res.status(400).json({ status: false, msg: "No matching images found" });
+        }
 
         return res.status(200).json({"Status" : true, "msg": "image deleted Successfully", "result": result});
     }
@@ -100,8 +86,8 @@ const getImages = async(req, res) => {
             {eventId: event._id}
         );
 
-        console.log(result.images);
-        return res.status(200).json({"Status" : true, "msg": "image added Successfully", "result": result.images});
+        // console.log(result.images);
+        return res.status(200).json({"Status" : true, "msg": "images get Successfully", "result": result.images});
     }
     catch(err) {
         console.log(err);

@@ -69,7 +69,7 @@ const updateEvent = async(req, res) => {
             mainTheme: req.body.newMainTheme == null ? req.body.mainTheme : req.body.newMainTheme,
             details: req.body.newDetails == null ? req.body.details : req.body.newDetails,
             image: req.file ? req.file.filename : null,   
-        }
+        } 
 
         console.log(updatedDetails);
 

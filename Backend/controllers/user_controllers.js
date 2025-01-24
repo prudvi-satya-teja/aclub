@@ -106,7 +106,7 @@ const updateUser = async(req, res) => {
             lastName: req.body.lastName ? user.lastName : req.body.lastName, 
             rollNo: req.body.newRollNo ? user.rollNo : req.body.newRollNo,  
             phoneNo: req.body.phoneNo ? user.phoneNo : req.body.phoneNo, 
-            password: req.body.newpassword? user.password :  await bcrypt.hash(req.body.newpassword, 12)
+            password: req.body.newpassword? user.password :  await bcrypt.hash(req.body.newpassword, 12) 
         }
     
         var newUser = new User(userData);
@@ -123,7 +123,7 @@ const updateUser = async(req, res) => {
 // to delete user
 const deleteUser = async(req, res) => {
     try {
-        if(!req.body.rollNo || !req.body.password || !req.body.clubName) {
+        if(!req.body.rollNo || !req.body.password || !req.body.clubId) {
             return res.status(400).json({"Status": "Fail", "msg": "Please enter valid Details"});
         }
         
@@ -136,9 +136,9 @@ const deleteUser = async(req, res) => {
             return res.status(400).json({"Status": "Fail", "msg": "Please Enter valid Password"});
         }
 
-        var participation = Participation.findOne({clubName: req.body.clubName, rollNo: req.body.rollNo});
+        var participation = Participation.findOne({clubId: req.body.clubId, rollNo: req.body.rollNo});
         if(!participation) {
-            return res.status(400).json({"Status": "Fail", "msg": `User is not a member of the ${req.body.clubName}`})
+            return res.status(400).json({"Status": "Fail", "msg": `User is not a member of the ${req.body.clubId}`})
         }
 
         var participationCount = Participation.aggregate(
@@ -152,7 +152,7 @@ const deleteUser = async(req, res) => {
             ]
         );
 
-        const deleteParticipation = await Participation.findOneAndDelete({rollNo: req.body.rollNo, clubName: req.body.clubName});
+        const deleteParticipation = await Participation.findOneAndDelete({rollNo: req.body.rollNo, clubId: req.body.clubId});
 
         if(participationCount == 1)  {
             const deleteUser = await User.findOneAndDelete({rollNo: req.body.rollNo});
@@ -168,21 +168,45 @@ const deleteUser = async(req, res) => {
 // to get all users  // need to write the aggregations
 const getAllUsers = async(req, res) => {
     try {
-        if(!req.body.clubName) {
-            return res.status(500).json({"Status": "fail", "msg": "Please enter valid clubname"})
+        var club = await  Club.findOne({clubId: req.body.clubId});
+        console.log(req.body.clubId);
+        if(!club) {
+            return res.status(500).json({"Status": "fail", "msg": "Please enter valid clubId"})
         }
+        console.log(club);
         // need to write oreectly
-        var users =  Participation.aggregate(
+        var users = await  Participation.aggregate(
             [
                 {
-                    $group : {
-                        _id: req.body.clubName,
-                    },
-                    $project : {}
+                  '$match': {
+                    'clubId': club._id,
+                  }
+                }, {
+                  '$project': {
+                    'userId': 1, 
+                    '_id': 0
+                  }
+                }, {
+                  '$lookup': {
+                    'from': 'users', 
+                    'localField': 'userId', 
+                    'foreignField': '_id', 
+                    'as': 'user'
+                  }
+                }, {
+                  '$unwind': {
+                    'path': '$user'
+                  }
+                }, {
+                  '$project': {
+                    'rollno': '$user.rollNo', 
+                    'name': '$user.firstName'
+                  }
                 }
-            ]
+              ]
         );
-            // return res.status(200).json("Status": "Success", "msg": "Successful get all users")];
+        
+        return res.status(200).json({"Status": "Success", "msg": "Successful get all users", "users": users});
     }
     catch(err) {
         console.error(err);

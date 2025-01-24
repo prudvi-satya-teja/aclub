@@ -47,7 +47,7 @@ const deleteClub = async(req, res) => {
 
 //  to update club
 const updateClub = async(req, res) => {
-    const prevclub = { name: req.body.prevname, clubId: req.body.prevClubId}
+    const club = { name: req.body.name, clubId: req.body.ClubId}
     try{
         const imagePath = req.file ? req.file.filename: null;
 
@@ -55,10 +55,14 @@ const updateClub = async(req, res) => {
             return res.status(400).json({"success": false, "msg": "image not uploaded"});
         }  
         
-        const updateClub = { name: req.body.newname, clubId: req.body.newClubId, clubImage: req.body.imagePath } 
+        const updateClub = { 
+            name: req.body.newName ? req.body.newName : club.name,
+            clubId: req.body.newClubId ? req.body.newClub : club.clubId,
+             clubImage: req.body.imagePath
+         } 
     
-        if(await Club.findOne(prevclub)) {
-            await Club.findOneAndUpdate(prevclub, updateClub);
+        if(await Club.findOne( club)) {
+            await Club.findOneAndUpdate(club, updateClub);
             // console.log(updateClub);
             return res.status(200).json({"success" : true, "msg": "club updated successfully", "updated Club": updateClub});
         }

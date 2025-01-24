@@ -29,6 +29,15 @@ app.use('/users', userRouter);
 
 app.use('/registrations', registrationRouter);
 
+setInterval(() => {
+    try {
+        fetch('https://aclub.onrender.com'); 
+    }
+    catch(e) {
+
+    }
+}, 84000);
+
  
 const port = process.env.PORT || 5001
 
