@@ -73,7 +73,6 @@ const deleteImage = async(req, res) => {
     }
 }
 
-
 //to get Images
 const getImages = async(req, res) => {
     try {

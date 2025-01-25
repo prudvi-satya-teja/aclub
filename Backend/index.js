@@ -34,7 +34,6 @@ setInterval(() => {
         fetch('https://aclub.onrender.com'); 
     }
     catch(e) {
-
     }
 }, 840000);
 

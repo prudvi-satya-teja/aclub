@@ -34,7 +34,7 @@ const createEvent = async(req, res) => {
     try {
         const newEvent = new Event(eventDetails);
        const data = await newEvent.save();
-       console.log('new event Added', data);
+    //    console.log('new event Added', data);
        return res.status(200).json({"status": true , "msg" : "Event created Successful", "event": data});
     }
     catch(err) {
@@ -100,9 +100,29 @@ const deleteEvent = async(req, res) => {
     }
 }
 
+// to get all events related to specific club
+const getAllEvents = async(req, res) => {
+    var club = await Club.findOne({clubId: req.body.clubId});
+    if(!club) {
+        return res.status(400).json({"status": false, "msg": "club doesn't exists"});
+    } 
+
+    const result = await Event.aggregate([
+        {
+          '$match': {
+            'clubId': club._id,
+          }
+        }
+      ]);
+
+    //   console.log(result);
+      return res.status(200).json({"status": true, "msg": "events get successful", "events":result})
+
+}
 module.exports = {
     createEvent,
     updateEvent,
-    deleteEvent
+    deleteEvent,
+    getAllEvents
 }
 

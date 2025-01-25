@@ -37,6 +37,9 @@ router.patch('/update-event', uploadImage, eventController.updateEvent);
 // to delete event 
 router.delete('/delete-event', eventController.deleteEvent);
 
+// to get all - events
+router.get('/get-all-events', eventController.getAllEvents);
+
 module.exports = {
     router
 }
