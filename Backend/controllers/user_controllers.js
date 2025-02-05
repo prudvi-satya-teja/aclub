@@ -31,9 +31,11 @@ const addUser = async(req, res) => {
             }
             
             var newUser = new User(userData);
-            user = User.create(newUser);
+            user = await newUser.save();
             // console.log(user);
         }
+
+        console.log("user", user);
         
         var participationData = {
             clubId : club._id,
@@ -42,8 +44,9 @@ const addUser = async(req, res) => {
 
         var role = req.body.role ? req.body.role: "user";
 
-        // console.log(participationData)
+        console.log(participationData)
         var participation = await Participation.findOne(participationData);
+        console.log(participation)
         if(participation) {
             if(participation.role == req.body.role) {
                 return res.status(400).json({"Status": false, "msg": "User already exists in the club"});
@@ -54,8 +57,15 @@ const addUser = async(req, res) => {
             }
 
         }
+        // else {
+        //     participationData.role = req.body.role ? req.body.role: "user";
+        //     console.log(participationData);
+        //     var result = await Participation.save();
+        //     return res.status(400).json({"status": true, "msg": "Participation created successful", "user": user, "participation": result});
+        // }
 
-        var newParticipation = new Participation({participationData, role: role } );
+        var newParticipation = new Participation({clubId: club._id, userId: user._id, role: role } );
+        console.log("new participation" ,newParticipation);
         var resultParticipation =await  newParticipation.save();
         // console.log(resultParticipation);
         return res.status(200).json({"Status": true, "msg": "User Creation Successful", "participation": resultParticipation, "user": user});

@@ -40,6 +40,15 @@ router.delete('/delete-event', eventController.deleteEvent);
 // to get all - events
 router.get('/get-all-events', eventController.getAllEvents);
 
+// to get ongoing events for a specific club
+router.get('/ongoing-events', eventController.getOngoingEvents);
+
+// to get upcoming events for a specific club
+router.get('/upcoming-events', eventController.getUpcomingEvents);
+
+// to get past event for a specific club
+router.get('/past-events', eventController.getPastEvents);
+
 module.exports = {
     router
 }

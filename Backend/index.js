@@ -11,6 +11,7 @@ const { router: userRouter} = require('./routers/user_router');
 const { router: eventRouter } = require('./routers/event_router');
 const { router: registrationRouter } = require('./routers/registation_router');
 const { router: eventDataRouter } = require('./routers/even_data_router');
+const { router: participationRouter } = require('./routers/participation_router');
 
 app.use(cors());
 app.use(express.json());
@@ -28,6 +29,8 @@ app.use('/data', eventDataRouter);
 app.use('/users', userRouter);
 
 app.use('/registrations', registrationRouter);
+
+app.use('/participation', participationRouter);
 
 setInterval(() => {
     try {

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Event = require('../models/events_model');
 const Club = require('../models/club_model');
+const { events } = require('../models/participation_model');
 
 // to create event
 const createEvent = async(req, res) => {
@@ -107,22 +108,162 @@ const getAllEvents = async(req, res) => {
         return res.status(400).json({"status": false, "msg": "club doesn't exists"});
     } 
 
-    const result = await Event.aggregate([
-        {
-          '$match': {
-            'clubId': club._id,
-          }
-        }
-      ]);
+    try {
+        const result = await Event.aggregate([
+            {
+            '$match': {
+                'clubId': club._id,
+            }
+            }
+        ]);
 
-    //   console.log(result);
-      return res.status(200).json({"status": true, "msg": "events get successful", "events":result})
+        //   console.log(result);
+        return res.status(200).json({"status": true, "msg": "events get successful", "events":result})
+    }
+    catch(err) {
+        console.error(err);
+        return res.status(500).json({"status": false, "msg": "server error"});
+    }
+
 
 }
+
+// to get ongoing events for a specific club
+const getOngoingEvents = async(req, res) => {
+    var club = await Club.findOne({clubId: req.body.clubId});
+    if(!club) {
+        return res.status(400).json({"status": false, "msg": "club doesn't exists"});
+    } 
+
+    try {
+        const result = await Event.aggregate([
+            {
+              '$match': {
+                'clubId': club._id, 
+                '$expr': {
+                  '$eq': [
+                    {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d', 
+                        'date': '$date'
+                      }
+                    }, {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d', 
+                        'date': new Date()
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]);
+
+        //   console.log(result);
+        return res.status(200).json({"status": true, "msg": "events get successful", "ongoing events":result})
+    }
+    catch(err) {
+        console.error(err);
+        return res.status(500).json({"status": false, "msg": "server error"});
+    }
+}
+
+// to get upcoming events for a specific club
+const getUpcomingEvents = async(req,res) => {
+    var club = await Club.findOne({clubId: req.body.clubId});
+    if(!club) {
+        return res.status(400).json({"status": false, "msg": "club doesn't exists"});
+    } 
+
+    try {
+        const result = await Event.aggregate([
+            {
+              '$match': {
+                'clubId': club._id, 
+                '$expr': {
+                  '$gt': [
+                    {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d', 
+                        'date': '$date'
+                      }
+                    }, {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d', 
+                        'date': new Date()
+                      }
+                    }
+                  ]
+                }
+              }
+            }, {
+              '$sort': {
+                'date': 1
+              }
+            }
+          ]);
+
+          console.log(result);
+        return res.status(200).json({"status": true, "msg": "events get successful", "upcoming events":result})
+    }
+    catch(err) {
+        console.error(err);
+        return res.status(500).json({"status": false, "msg": "server error"});
+    }
+}
+
+// to get past event for a specific club
+const getPastEvents = async(req, res) => {
+    var club = await Club.findOne({clubId: req.body.clubId});
+    if(!club) {
+        return res.status(400).json({"status": false, "msg": "club doesn't exists"});
+    } 
+
+    try {
+        const result = await Event.aggregate([
+            {
+              '$match': {
+                'clubId': club._id, 
+                '$expr': {
+                  '$lt': [
+                    {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d', 
+                        'date': '$date'
+                      }
+                    }, {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d', 
+                        'date': new Date()
+                      }
+                    }
+                  ]
+                }
+              }
+            }, {
+              '$sort': {
+                'date': -1
+              }
+            }
+          ]);
+
+        //   console.log(result);
+        return res.status(200).json({"status": true, "msg": "events get successful", "past events":result})
+    }
+    catch(err) {
+        console.error(err);
+        return res.status(500).json({"status": false, "msg": "server error"});
+    }
+}
+
+
 module.exports = {
     createEvent,
     updateEvent,
     deleteEvent,
-    getAllEvents
+    getAllEvents,
+    getOngoingEvents,
+    getUpcomingEvents,
+    getPastEvents
 }
 
