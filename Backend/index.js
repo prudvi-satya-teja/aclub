@@ -12,6 +12,7 @@ const { router: eventRouter } = require('./routers/event_router');
 const { router: registrationRouter } = require('./routers/registation_router');
 const { router: eventDataRouter } = require('./routers/even_data_router');
 const { router: participationRouter } = require('./routers/participation_router');
+const { router: authenticationRouter } = require('./routers/authentication_router');
 
 app.use(cors());
 app.use(express.json());
@@ -31,6 +32,8 @@ app.use('/users', userRouter);
 app.use('/registrations', registrationRouter);
 
 app.use('/participation', participationRouter);
+
+app.use('/auth', authenticationRouter);
 
 setInterval(() => {
     try {
