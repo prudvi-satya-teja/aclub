@@ -103,7 +103,9 @@ const deleteEvent = async(req, res) => {
 
 // to get all events related to specific club
 const getAllEvents = async(req, res) => {
+  console.log("hello", req.body);
     var club = await Club.findOne({clubId: req.body.clubId});
+    console.log("hello", req.body);
     if(!club) {
         return res.status(400).json({"status": false, "msg": "club doesn't exists"});
     } 
@@ -130,7 +132,7 @@ const getAllEvents = async(req, res) => {
 
 // to get ongoing events for a specific club
 const getOngoingEvents = async(req, res) => {
-    var club = await Club.findOne({clubId: req.body.clubId});
+    var club = await Club.findOne({clubId: req.query.clubId});
     if(!club) {
         return res.status(400).json({"status": false, "msg": "club doesn't exists"});
     } 
@@ -170,7 +172,7 @@ const getOngoingEvents = async(req, res) => {
 
 // to get upcoming events for a specific club
 const getUpcomingEvents = async(req,res) => {
-    var club = await Club.findOne({clubId: req.body.clubId});
+    var club = await Club.findOne({clubId: req.query.clubId});
     if(!club) {
         return res.status(400).json({"status": false, "msg": "club doesn't exists"});
     } 
@@ -214,7 +216,7 @@ const getUpcomingEvents = async(req,res) => {
 
 // to get past event for a specific club
 const getPastEvents = async(req, res) => {
-    var club = await Club.findOne({clubId: req.body.clubId});
+    var club = await Club.findOne({clubId: req.query.clubId});
     if(!club) {
         return res.status(400).json({"status": false, "msg": "club doesn't exists"});
     } 
@@ -292,10 +294,6 @@ const getAllOngoingEvents = async(req, res) => {
 
 // to get upcoming events for a specific club
 const getAllUpcomingEvents = async(req,res) => {
-  var club = await Club.findOne({clubId: req.body.clubId});
-  if(!club) {
-      return res.status(400).json({"status": false, "msg": "club doesn't exists"});
-  } 
 
   try {
       const result = await Event.aggregate([

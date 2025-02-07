@@ -79,10 +79,10 @@ const addUser = async(req, res) => {
 // to get user details  // need to add club and their roles 
 const getUserDetails = async(req, res) => {
     try {
-        if(!req.body.rollNo) {
+        if(!req.query.rollNo) {
             return res.status(400).json({"status": false, "msg": "Please enter valid rollno"});
         }
-        var user = await User.findOne({rollNo: req.body.rollNo}, {firstName: 1, lastName: 1, rollNo: 1, phoneNo: 1});
+        var user = await User.findOne({rollNo: req.query.rollNo}, {firstName: 1, lastName: 1, rollNo: 1, phoneNo: 1});
         console.log(user);
         if(!user) {
             return res.status(500).json({"Status": true, "msg": "user not exists"});
@@ -178,8 +178,8 @@ const deleteUser = async(req, res) => {
 // to get all users  // need to write the aggregations
 const getAllUsers = async(req, res) => {
     try {
-        var club = await  Club.findOne({clubId: req.body.clubId});
-        console.log(req.body.clubId);
+        var club = await  Club.findOne({clubId: req.query.clubId});
+        console.log(req.query.clubId);
         if(!club) {
             return res.status(500).json({"Status": "fail", "msg": "Please enter valid clubId"})
         }

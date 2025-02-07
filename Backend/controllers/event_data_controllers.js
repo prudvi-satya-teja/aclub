@@ -76,7 +76,7 @@ const deleteImage = async(req, res) => {
 //to get Images
 const getImages = async(req, res) => {
     try {
-        const event = await Event.findOne({eventName: req.body.eventName});
+        const event = await Event.findOne({eventName: req.query.eventName});
         if(!event) {
             return res.status(400).json({"status": false, "msg": "event doesn't exists"});
         }

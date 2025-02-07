@@ -3,7 +3,7 @@ const Club = require('../models/club_model');
 
 //to get admin and coordinator from a specific club
 const getClubMembers = async (req, res) => {
-    var club = await Club.findOne({clubId: req.body.clubId});
+    var club = await Club.findOne({clubId: req.query.clubId});
     if(!club) {
         return res.status(400).json({"status": false, "msg": "club doesn't exists"});
     } 

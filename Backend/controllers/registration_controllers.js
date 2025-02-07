@@ -65,7 +65,7 @@ const giveFeedback = async(req, res) => {
 // to get all registered Users for an event
 const getAllRegisteredUsers = async(req, res) => {
     try {
-        const event = await Event.findOne({eventName: req.body.eventName});
+        const event = await Event.findOne({eventName: req.query.eventName});
         if(!event) {
             return res.status(400).json({"status": false, "msg": "event doesn't exists"});
         }
@@ -106,7 +106,7 @@ const getAllRegisteredUsers = async(req, res) => {
 // to get event feedback
 const getEventFeedback = async(req, res) => {
     try {
-        const event =await  Event.findOne({eventName: req.body.eventName});
+        const event =await  Event.findOne({eventName: req.query.eventName});
         if(!event) {
             return res.status(400).json({"status": false, "msg": "event doesn't exists"});
         }
@@ -150,7 +150,7 @@ const getEventFeedback = async(req, res) => {
 // to get average rating
 const getAverageRating = async(req, res) => {
     try {
-        const event = await Event.findOne({eventName: req.body.eventName});
+        const event = await Event.findOne({eventName: req.query.eventName});
         if(!event) {
             return res.status(400).json({"status": false, "msg": "event doesn't exists"});
         }

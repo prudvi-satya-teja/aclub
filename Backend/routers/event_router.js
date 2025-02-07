@@ -38,8 +38,6 @@ router.patch('/update-event', authMiddleware.restrictToAdminOnly, uploadImage, e
 // to delete event 
 router.delete('/delete-event', authMiddleware.restrictToAdminOnly, eventController.deleteEvent);
 
-
-
 // to get all - events
 router.post('/get-all-events', eventController.getAllEvents);
 
@@ -51,6 +49,15 @@ router.get('/upcoming-events', eventController.getUpcomingEvents);
 
 // to get past event for a specific club
 router.get('/past-events', eventController.getPastEvents);
+
+// to get  all ongoing events 
+router.get('/all-ongoing-events', eventController.getAllOngoingEvents);
+
+// to get all upcoming events
+router.get('/all-upcoming-events', eventController.getAllUpcomingEvents);
+
+// to get all past event
+router.get('/all-past-events', eventController.getAllPastEvents);
 
 module.exports = {
     router
