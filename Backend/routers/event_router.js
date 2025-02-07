@@ -1,6 +1,7 @@
 const express = require('express');
 const eventController = require('../controllers/event_controller');
 const eventDataController = require('../controllers/event_data_controllers');
+const authMiddleware = require('../middlewares/authentication_middleware');
 
 const router = express.Router();
 
@@ -29,16 +30,18 @@ const uploadImage = multer({storage: demoStorage}).single("eventImage");
 
 // admin
 // to create event
-router.post('/create-event', uploadImage, eventController.createEvent);
+router.post('/create-event', authMiddleware.restrictToAdminOnly, uploadImage, eventController.createEvent);
 
 // to update event
-router.patch('/update-event', uploadImage, eventController.updateEvent);
+router.patch('/update-event', authMiddleware.restrictToAdminOnly, uploadImage, eventController.updateEvent);
 
 // to delete event 
-router.delete('/delete-event', eventController.deleteEvent);
+router.delete('/delete-event', authMiddleware.restrictToAdminOnly, eventController.deleteEvent);
+
+
 
 // to get all - events
-router.get('/get-all-events', eventController.getAllEvents);
+router.post('/get-all-events', eventController.getAllEvents);
 
 // to get ongoing events for a specific club
 router.get('/ongoing-events', eventController.getOngoingEvents);

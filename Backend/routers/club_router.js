@@ -1,5 +1,6 @@
 const express = require('express');
 const clubController = require('../controllers/club_controller');
+const authMiddleware = require('../middlewares/authentication_middleware');
 
 const router = express.Router();
 
@@ -27,13 +28,13 @@ const demoStorage = multer.diskStorage({
 const uploadImage = multer({storage: demoStorage}).single("clubImage");
 
 // create club
-router.post('/create-club', uploadImage, clubController.createClub);
+router.post('/create-club', authMiddleware.restrictToAdminOnly, uploadImage, clubController.createClub);
 
 // update club
-router.patch('/update-club', uploadImage, clubController.updateClub);
+router.patch('/update-club', authMiddleware.restrictToAdminOnly, uploadImage, clubController.updateClub);
 
 // delete club
-router.delete('/delete-club', clubController.deleteClub);
+router.delete('/delete-club', authMiddleware.restrictToAdminOnly, clubController.deleteClub);
 
 // get all clubs
 router.get('/get-all-clubs', clubController.getAllClubs);

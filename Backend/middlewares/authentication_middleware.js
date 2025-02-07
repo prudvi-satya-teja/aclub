@@ -4,8 +4,7 @@ const {verifyToken} = require('../services/authentication');
 
 
 const restrictToLoggedUserOnly = async(req, res, next) => {
-    const token = req.headers.authorization.split(' ')[1];
-
+    const token = req.headers.token;
     try {
         if(!token) {
             return res.status(400).json({"status": false, "msg": "no token provided"});
@@ -46,8 +45,6 @@ const restrictToAdminOnly = async(req, res, next) => {
 
         var rollNo = decodedToken.rollNo;
         const user = await User.findOne({rollNo: rollNo});
-
-        if()
 
         req.user = user;
         next();

@@ -256,6 +256,122 @@ const getPastEvents = async(req, res) => {
     }
 }
 
+// to get all ongoing events
+const getAllOngoingEvents = async(req, res) => {
+  try {
+      const result = await Event.aggregate([
+          {
+            '$match': {
+              '$expr': {
+                '$eq': [
+                  {
+                    '$dateToString': {
+                      'format': '%Y-%m-%d', 
+                      'date': '$date'
+                    }
+                  }, {
+                    '$dateToString': {
+                      'format': '%Y-%m-%d', 
+                      'date': new Date()
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]);
+
+      //   console.log(result);
+      return res.status(200).json({"status": true, "msg": "events get successful", "ongoing events":result})
+  }
+  catch(err) {
+      console.error(err);
+      return res.status(500).json({"status": false, "msg": "server error"});
+  }
+}
+
+// to get upcoming events for a specific club
+const getAllUpcomingEvents = async(req,res) => {
+  var club = await Club.findOne({clubId: req.body.clubId});
+  if(!club) {
+      return res.status(400).json({"status": false, "msg": "club doesn't exists"});
+  } 
+
+  try {
+      const result = await Event.aggregate([
+          {
+            '$match': {
+              '$expr': {
+                '$gt': [
+                  {
+                    '$dateToString': {
+                      'format': '%Y-%m-%d', 
+                      'date': '$date'
+                    }
+                  }, {
+                    '$dateToString': {
+                      'format': '%Y-%m-%d', 
+                      'date': new Date()
+                    }
+                  }
+                ]
+              }
+            }
+          }, {
+            '$sort': {
+              'date': 1
+            }
+          }
+        ]);
+
+        console.log(result);
+      return res.status(200).json({"status": true, "msg": "events get successful", "upcoming events":result})
+  }
+  catch(err) {
+      console.error(err);
+      return res.status(500).json({"status": false, "msg": "server error"});
+  }
+}
+
+// to get past event for a specific club
+const getAllPastEvents = async(req, res) => {
+
+  try {
+      const result = await Event.aggregate([
+          {
+            '$match': {
+              '$expr': {
+                '$lt': [
+                  {
+                    '$dateToString': {
+                      'format': '%Y-%m-%d', 
+                      'date': '$date'
+                    }
+                  }, {
+                    '$dateToString': {
+                      'format': '%Y-%m-%d', 
+                      'date': new Date()
+                    }
+                  }
+                ]
+              }
+            }
+          }, {
+            '$sort': {
+              'date': -1
+            }
+          }
+        ]);
+
+      //   console.log(result);
+      return res.status(200).json({"status": true, "msg": "events get successful", "past events":result})
+  }
+  catch(err) {
+      console.error(err);
+      return res.status(500).json({"status": false, "msg": "server error"});
+  }
+}
+
 
 module.exports = {
     createEvent,
@@ -264,6 +380,9 @@ module.exports = {
     getAllEvents,
     getOngoingEvents,
     getUpcomingEvents,
-    getPastEvents
+    getPastEvents,
+    getAllOngoingEvents,
+    getAllUpcomingEvents,
+    getAllPastEvents
 }
 

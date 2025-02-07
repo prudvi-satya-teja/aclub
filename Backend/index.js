@@ -14,6 +14,8 @@ const { router: eventDataRouter } = require('./routers/even_data_router');
 const { router: participationRouter } = require('./routers/participation_router');
 const { router: authenticationRouter } = require('./routers/authentication_router');
 
+const authMiddleware = require('./middlewares/authentication_middleware');
+
 app.use(cors());
 app.use(express.json());
 
@@ -21,7 +23,7 @@ connectToDB(process.env.MONGO_DB_URL)
     .then( () => { console.log('mongodb connected successfully'); })
     .catch( (err) => { console.log('mongodb connection error'); })
 
-app.use('/clubs', clubRouter);
+app.use('/clubs', authMiddleware.restrictToAdminOnly, clubRouter);
 
 app.use('/events', eventRouter);
 
