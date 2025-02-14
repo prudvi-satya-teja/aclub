@@ -1,9 +1,13 @@
 const User = require('../models/user_model');
 const bcrypt = require('bcrypt');
 const {setToken} = require('../services/authentication');
+const mailSender = require('./mail_sender_controller');
 
+
+// to signup 
 const signup = async(req, res) => {
     try {
+        console.log(req.body);
         if(!req.body.firstName || !req.body.rollNo || !req.body.password) {
             return res.status(400).json({"status": false, "msg": "please enter all details"});
         }
@@ -25,7 +29,9 @@ const signup = async(req, res) => {
     
         var user = new User(userDetails);
         await user.save();
-        return res.status(200).json({"statsu": true, "msg": "user creation successful", "user": user});
+
+
+        return res.status(200).json({"status": true, "msg": "user creation successful", "user": user});
     }
     catch(err) {
         console.error(err);
@@ -33,6 +39,8 @@ const signup = async(req, res) => {
     }
 }
 
+
+// to login
 const login = async(req, res) => {
     if(!req.query.rollNo || !req.query.password) {
         return res.status(400).json({"status": false, "msg": "please enter all details"});
@@ -59,12 +67,15 @@ const login = async(req, res) => {
              return res.status(400).json({"message": "Please enter correct password"});
     }
 } 
- 
+
+
+// to logout
 const logout = async(req, res) => {
     // res.clearCookie("uid");
     return res.status(200).json({"status": true, "msg": "logout successful"});
 }
- 
+
+// to password reset 
 const passwordReset = async(req, res) => {
     if(!req.body.rollNo || !req.body.oldPassword || !req.body.newPassword) {
         return res.status(404).json({"message": "please enter valid detials"});

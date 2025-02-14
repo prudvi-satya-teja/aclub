@@ -119,6 +119,7 @@ const getAllEvents = async(req, res) => {
             }
         ]);
 
+        result.clubId = req.body.clubId;
         //   console.log(result);
         return res.status(200).json({"status": true, "msg": "events get successful", "events":result})
     }
