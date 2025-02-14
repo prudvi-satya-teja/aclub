@@ -42,7 +42,7 @@ const signup = async(req, res) => {
 
 // to login
 const login = async(req, res) => {
-    if(!req.query.rollNo || !req.query.password) {
+    if(!req.body.rollNo || !req.body.password) {
         return res.status(400).json({"status": false, "msg": "please enter all details"});
     }   
     const user = await User.findOne({rollNo: req.query.rollNo});
