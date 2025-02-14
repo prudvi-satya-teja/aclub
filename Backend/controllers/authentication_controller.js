@@ -42,16 +42,17 @@ const signup = async(req, res) => {
 
 // to login
 const login = async(req, res) => {
+    console.log(req.body);
     if(!req.body.rollNo || !req.body.password) {
         return res.status(400).json({"status": false, "msg": "please enter all details"});
     }   
-    const user = await User.findOne({rollNo: req.query.rollNo});
+    const user = await User.findOne({rollNo: req.body.rollNo});
     if(!user) {
         return res.status(400).json({"status": false, "msg": "user doesn't exists"});
     }
 
     try {
-            if(!await bcrypt.compare(req.query.password, user.password)) {
+            if(!await bcrypt.compare(req.body.password, user.password)) {
                 return res.status(400).json({"status": false, "msg": "please enter correct password"});
             }
             
