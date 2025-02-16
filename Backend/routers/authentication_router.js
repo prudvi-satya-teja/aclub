@@ -10,6 +10,8 @@ router.post('/signup', authenticationController.signup);
 
 router.get('/logout', authMiddleware.restrictToAdminOnly, authenticationController.logout);
 
+router.post('/forgot-password', authenticationController.forgotPassword);
+
 router.post('/password-reset',authMiddleware.restrictToAdminOnly, authenticationController.passwordReset);
 
 module.exports = {

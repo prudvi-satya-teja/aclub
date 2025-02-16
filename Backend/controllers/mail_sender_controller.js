@@ -9,6 +9,7 @@ var sendMail = async(receiver, subject,  message) => {
                 pass: "iiyg cqtg bbdf krsa"
         }
     });
+    console.log()
 
     const mailOptions  = {
         from: "adityauniversityclubs@gmail.com",
@@ -25,3 +26,8 @@ var sendMail = async(receiver, subject,  message) => {
     }) 
 
 };
+
+
+module.exports = {
+    sendMail
+}
