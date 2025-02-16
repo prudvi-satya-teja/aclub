@@ -41,13 +41,13 @@ const registerEvent = async(req, res) => {
 // registration status of a user
 const registrationStatus = async(req, res) => {
   try {
-      const event = await Event.findOne({eventName: req.body.eventName});
+      const event = await Event.findOne({eventName: req.query.eventName});
       if(!event) {
           return res.status(400).json({"status": false, "msg": "event doesn't exists"});
       }
 
-      const user = await User.findOne({rollNo: req.body.rollNo});
-      console.log(user, req.body.rollNo);
+      const user = await User.findOne({rollNo: req.query.rollNo});
+      console.log(user, req.query.rollNo);
       if(!user) {
           return res.status(400).json({"status": false, "msg": "please enter valid rollno"});
       }

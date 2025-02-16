@@ -13,7 +13,7 @@ router.get('/registered-users',registrationController.getAllRegisteredUsers);
 router.post('/register-event',  registrationController.registerEvent);
 
 // to check user registered or not
-router.post('/registration-status', registrationController.registrationStatus);
+router.get('/registration-status', registrationController.registrationStatus);
 
 // to give feedback (include rating is mandatory at the end of submission)
 router.post('/give-feedback' ,registrationController.giveFeedback);
