@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const {setToken} = require('../services/authentication');
 const mailSender = require('./mail_sender_controller');
 const otpGenerator = require('otp-generator');
+const otpManager = require('../services/otp');
 
 
 // to signup 
@@ -94,7 +95,8 @@ const forgotPassword = async(req, res) => {
 
     
     var otp = otpGenerator.generate(6, {lowerCaseAlphabets: false, specialChars: false, upperCaseAlphabets: false});
-
+    await otpManager.otpMap.set(rollNo, otp);
+    console.log("otp is  : ", otpManager.otpMap.get(rollNo));
     var subject = "otp for password resetting";
     var msg = `This is one time password valid for 10 minutes ${otp}`;
 
@@ -109,8 +111,38 @@ const forgotPassword = async(req, res) => {
 }
 
 // to password reset 
+const setForgotPassword = async(req, res) => {
+    if(!req.body.rollNo || !req.body.otp || !req.body.password) {
+        return res.status(404).json({"message": "please enter valid detials"});
+    }
+
+    var user = await User.findOne({rollNo: req.body.rollNo});
+    if(!user) {
+        return res.status(400).json({"status": false, "msg": "user doesn't exists"});
+    }
+
+    try {
+        var otp = otpManager.otpMap.get(req.body.rollNo);
+        console.log(otp);
+        if(!otp) {
+            return res.status(400).json({"status": false, "msg": "please enter correct user"});
+        }
+        if(otp != req.body.otp.toLowerCase()) {
+            return res.status(400).json({"status": false, "msg": "please enter correct otp"});
+        }   
+        user.password = await bcrypt.hash(req.body.password, 12);
+        await user.save();
+        return res.status(200).json({"status" : true, "message": "password changed Successfully"});
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).json({"status": false, "msg": "serveer error"});
+    }
+}
+
+// to password reset 
 const passwordReset = async(req, res) => {
-    if(!req.body.rollNo || !req.body.otp ||  !req.body.oldPassword || !req.body.newPassword) {
+    if(!req.body.rollNo ||  !req.body.oldPassword || !req.body.newPassword) {
         return res.status(404).json({"message": "please enter valid detials"});
     }
 
@@ -139,5 +171,6 @@ module.exports = {
     signup,
     logout,
     forgotPassword,
+    setForgotPassword,
     passwordReset
 }
