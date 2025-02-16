@@ -33,7 +33,7 @@ const registerEvent = async(req, res) => {
     }
     catch(err) {
         console.error(err);
-        return res.json(500).json({"status": false, "msg": "server error"});
+        return res.status(500).json({"status": false, "msg": "server error"});
     }
 }
  
@@ -57,7 +57,7 @@ const registrationStatus = async(req, res) => {
           userId: user._id,
       }
 
-      const registered = Registration.findOne(Data);
+      const registered = await Registration.findOne(Data);
       if(!registered) {
         return res.status(400).json({"status": false, "msg": "user not registerd"});
       }
@@ -66,7 +66,7 @@ const registrationStatus = async(req, res) => {
   }
   catch(err) {
       console.error(err);
-      return res.json(500).json({"status": false, "msg": "server error"});
+      return res.status(500).json({"status": false, "msg": "server error"});
   }
 }
 
@@ -96,7 +96,7 @@ const giveFeedback = async(req, res) => {
     }
     catch(err) {
         console.error(err);
-        return res.json(500).json({"status": false, "msg": "server error"});
+        return res.status(500).json({"status": false, "msg": "server error"});
     }
 }
 
@@ -127,7 +127,7 @@ const feedbackStatus = async(req, res) => {
   }
   catch(err) {
       console.error(err);
-      return res.json(500).json({"status": false, "msg": "server error"});
+      return res.status(500).json({"status": false, "msg": "server error"});
   }
 }
 
@@ -168,7 +168,7 @@ const getAllRegisteredUsers = async(req, res) => {
     }
     catch(err) {
         console.log(err);
-        return res.json(500).json({"status": false, "msg": "server error"});
+        return res.status(500).json({"status": false, "msg": "server error"});
     }
 }
 
@@ -221,7 +221,7 @@ const getEventFeedback = async(req, res) => {
     }
     catch(err) {
         console.log(err);
-        return res.json(500).json({"status": false, "msg": "server error"});
+        return res.status(500).json({"status": false, "msg": "server error"});
     }
 }
 
