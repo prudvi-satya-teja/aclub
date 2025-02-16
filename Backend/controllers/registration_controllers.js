@@ -37,6 +37,39 @@ const registerEvent = async(req, res) => {
     }
 }
  
+
+// registration status of a user
+const registrationStatus = async(req, res) => {
+  try {
+      const event = await Event.findOne({eventName: req.body.eventName});
+      if(!event) {
+          return res.status(400).json({"status": false, "msg": "event doesn't exists"});
+      }
+
+      const user = await User.findOne({rollNo: req.body.rollNo});
+      console.log(user, req.body.rollNo);
+      if(!user) {
+          return res.status(400).json({"status": false, "msg": "please enter valid rollno"});
+      }
+
+      const Data = {
+          eventId: event._id,
+          userId: user._id,
+      }
+
+      const registered = Registration.findOne(Data);
+      if(!registered) {
+        return res.status(400).json({"status": false, "msg": "user not registerd"});
+      }
+
+      return res.status(200).json({"status": true, "msg": "Event registration Successful", "registration": registration});
+  }
+  catch(err) {
+      console.error(err);
+      return res.json(500).json({"status": false, "msg": "server error"});
+  }
+}
+
 // to give feedback
 const giveFeedback = async(req, res) => {
     try {
@@ -65,6 +98,37 @@ const giveFeedback = async(req, res) => {
         console.error(err);
         return res.json(500).json({"status": false, "msg": "server error"});
     }
+}
+
+// to get feedback status of a user
+const feedbackStatus = async(req, res) => {
+  try {
+      const event = await Event.findOne({eventName: req.body.eventName});
+      if(!event) {
+          return res.status(400).json({"status": false, "msg": "event doesn't exists"});
+      }
+      // if(!req.body.feedback || !req.body.rating) {
+      //     return res.status(400).json({"status": false, "msg": "please giving feedback and rating"});
+      // }
+      const user = await User.findOne({rollNo: req.body.rollNo});
+      if(!user) {
+          return res.status(400).json({"status": false, "msg": "user not exists"});
+      }
+      const registration = await Registration.findOne({userId: user._id, eventId : event._id});
+      if(!registration) {
+          return res.status(400).json({"status": false, "msg": "you are not registered for the event"});
+      }   
+
+      if(registration.feedback && registration.rating) {
+          return res.status(400).json({"status": false, "msg": "you are given the feeback"});
+      }
+
+      return res.status(200).json({"status": true, "msg": "please provide feedback", feedback: registration});
+  }
+  catch(err) {
+      console.error(err);
+      return res.json(500).json({"status": false, "msg": "server error"});
+  }
 }
 
 // to get all registered Users for an event
@@ -207,5 +271,6 @@ module.exports = {
     giveFeedback,
     getAllRegisteredUsers,
     getEventFeedback,
-    getAverageRating
+    getAverageRating,
+    registrationStatus
 }

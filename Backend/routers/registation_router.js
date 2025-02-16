@@ -10,7 +10,10 @@ router.get('/registered-users',registrationController.getAllRegisteredUsers);
 
 // users
 // to regiseter for event
-router.post('/register-event', authMiddleware.restrictToLoggedUserOnly, registrationController.registerEvent);
+router.post('/register-event',  registrationController.registerEvent);
+
+// to check user registered or not
+router.post('/registration-status', registrationController.registrationStatus);
 
 // to give feedback (include rating is mandatory at the end of submission)
 router.post('/give-feedback' ,registrationController.giveFeedback);
