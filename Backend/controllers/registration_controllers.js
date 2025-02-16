@@ -153,7 +153,7 @@ const getEventFeedback = async(req, res) => {
           }
         ]);
         console.log(feedback);
-        return res.status(200).json({"status": true, "msg": "Successfully get Event feedback", "feedback": feedback});
+        return res.status(200).json({"status": true, "msg": "Successfully get Event feedback", "feedbacks": feedback});
     }
     catch(err) {
         console.log(err);
