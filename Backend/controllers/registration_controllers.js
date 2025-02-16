@@ -100,7 +100,7 @@ const getAllRegisteredUsers = async(req, res) => {
             }
           ]);
         console.log(registeredUsers);
-        return res.status(200).json({"status": true, "registered users " : registeredUsers});
+        return res.status(200).json({"status": true, "registered users" : registeredUsers});
     }
     catch(err) {
         console.log(err);
@@ -120,7 +120,7 @@ const getEventFeedback = async(req, res) => {
         var feedback = await Registration.aggregate([
           {
             '$match': {
-              'eventId': event._id
+              'eventId': new ObjectId('6793299d5074b01c12bb40a5')
             }
           }, {
             '$lookup': {
@@ -134,12 +134,20 @@ const getEventFeedback = async(req, res) => {
               'path': '$result'
             }
           }, {
+            '$match': {
+              'feedback': {
+                '$ne': null
+              }, 
+              'rating': {
+                '$ne': null
+              }
+            }
+          }, {
             '$project': {
               'rollNo': '$result.rollNo', 
               'name': '$result.firstName', 
-              '_id': 0, 
-              'feedback': 1, 
-              'rating': 1
+              'feedback': '$feedback', 
+              'rating': '$rating'
             }
           }
         ]);
