@@ -147,7 +147,8 @@ const getEventFeedback = async(req, res) => {
               'rollNo': '$result.rollNo', 
               'name': '$result.firstName', 
               'feedback': '$feedback', 
-              'rating': '$rating'
+              'rating': '$rating',
+              '_id': 0
             }
           }
         ]);
