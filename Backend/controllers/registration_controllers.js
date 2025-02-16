@@ -120,7 +120,7 @@ const getEventFeedback = async(req, res) => {
         var feedback = await Registration.aggregate([
           {
             '$match': {
-              'eventId': new ObjectId('6793299d5074b01c12bb40a5')
+              'eventId': event._id
             }
           }, {
             '$lookup': {
