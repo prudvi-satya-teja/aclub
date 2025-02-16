@@ -147,9 +147,9 @@ const getOngoingEvents = async(req, res) => {
                   '$eq': [
                     {
                       '$dateToString': {
-                        'format': '%Y-%m-%d', 
+                        'format': '%Y-%m-%d',
                         'date': '$date'
-                      }
+                      }          
                     }, {
                       '$dateToString': {
                         'format': '%Y-%m-%d', 
@@ -337,30 +337,32 @@ const getAllPastEvents = async(req, res) => {
 
   try {
       const result = await Event.aggregate([
-          {
-            '$match': {
-              '$expr': {
-                '$lt': [
-                  {
-                    '$dateToString': {
-                      'format': '%Y-%m-%d', 
-                      'date': '$date'
-                    }
-                  }, {
-                    '$dateToString': {
-                      'format': '%Y-%m-%d', 
-                      'date': new Date()
-                    }
-                  }
-                ]
-              }
-            }
-          }, {
-            '$sort': {
-              'date': -1
-            }
+        {
+          '$lookup': {
+            'from': 'clubs', 
+            'localField': 'clubId', 
+            'foreignField': '_id', 
+            'as': 'result'
           }
-        ]);
+        }, {
+          '$unwind': {
+            'path': '$result'
+          }
+        }, {
+          '$project': {
+            'location': 1, 
+            'clubName': '$result.name', 
+            'clubId': '$result.clubId', 
+            'image': 1, 
+            'details': 1, 
+            'eventName': 1, 
+            'date': 1, 
+            'location': 1, 
+            'guests': 1, 
+            '_id': 0
+          }
+        }
+      ]);
 
       //   console.log(result);
       return res.status(200).json({"status": true, "msg": "events get successful", "past events":result})

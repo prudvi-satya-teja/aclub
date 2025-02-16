@@ -79,29 +79,25 @@ const logout = async(req, res) => {
 // for forgot password
 const forgotPassword = async(req, res) => {
     console.log(req.body);
-    if(!req.body.rollNo) {
-        return res.status(404).json({"message": "please enter valid erollNO"});
+    if(!req.body.rollNo || req.body.rollNo.length != 10) {
+        return res.status(404).json({"status": false, "msg": "please enter valid erollNO"});
     }
-
-    var rollNo = (req.body.rollNo).toLowerCase();
-    var mail = rollNo;
-
-    if(rollNo[2] == 'm') mail += "@acoe.edu.in";
-    else if(rollNo[2] ==  'p') mail += "@acet.edu.in";
-    else {
-        if(rollNo[1] <= '3')  mail += "@aec.edu.in";
-        else mail += "@au.edu.in";
-    }
-
-    
-    var otp = otpGenerator.generate(6, {lowerCaseAlphabets: false, specialChars: false, upperCaseAlphabets: false});
-    await otpManager.otpMap.set(rollNo, otp);
-    console.log("otp is  : ", otpManager.otpMap.get(rollNo));
-    var subject = "otp for password resetting";
-    var msg = `This is one time password valid for 10 minutes ${otp}`;
 
     try {
-        const sendEmail = mailSender.sendMail(mail, subject, msg);
+        var mail = (req.body.rollNo).toLowerCase();
+        if(mail[2] == 'm') mail += "@acoe.edu.in";
+        else if(mail[2] ==  'p') mail += "@acet.edu.in";
+        else {
+            if(mail[1] <= '3')  mail += "@aec.edu.in";
+            else mail += "@au.edu.in";
+        }
+
+        var otp = otpGenerator.generate(6, {lowerCaseAlphabets: false, specialChars: false, upperCaseAlphabets: false});
+        await otpManager.otpMap.set(rollNo, otp);
+        // console.log("otp is  : ", otpManager.otpMap.get(rollNo));
+
+        const sendEmail = mailSender.sendMail(mail, "otp for password resetting", `This is one time password valid for 10 minutes ${otp}`);
+        
         return res.status(200).json({"status": true, "msg": "opt sent successfully"});
     }
     catch(err) {
