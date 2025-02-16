@@ -62,7 +62,7 @@ const registrationStatus = async(req, res) => {
         return res.status(400).json({"status": false, "msg": "user not registerd"});
       }
 
-      return res.status(200).json({"status": true, "msg": "Event registration Successful", "registration": registration});
+      return res.status(200).json({"status": true, "msg": "already registered", "registration": registered});
   }
   catch(err) {
       console.error(err);
