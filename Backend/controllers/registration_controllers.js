@@ -95,7 +95,7 @@ const getAllRegisteredUsers = async(req, res) => {
             }
           ]);
         console.log(registeredUsers);
-        return res.status(200).json({"status": true, "registered users" : registeredUsers});
+        return res.status(200).json({"status": true, "registered users " : registeredUsers});
     }
     catch(err) {
         console.log(err);

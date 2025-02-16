@@ -13,7 +13,7 @@ router.get('/registered-users',registrationController.getAllRegisteredUsers);
 router.post('/register-event', authMiddleware.restrictToLoggedUserOnly, registrationController.registerEvent);
 
 // to give feedback (include rating is mandatory at the end of submission)
-router.post('/give-feedback', authMiddleware.restrictToLoggedUserOnly ,registrationController.giveFeedback);
+router.post('/give-feedback' ,registrationController.giveFeedback);
 
 // get event feedback
 router.get('/get-feedback', registrationController.getEventFeedback);
