@@ -2,7 +2,6 @@ const User = require('../models/user_model');
 const Participation = require('../models/participation_model');
 const {verifyToken} = require('../services/authentication');
 
-c
 const restrictToLoggedUserOnly = async(req, res, next) => {
     const token = req.headers.token;
     try {
