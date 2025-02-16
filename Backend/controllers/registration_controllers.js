@@ -20,8 +20,13 @@ const registerEvent = async(req, res) => {
             eventId: event._id,
             userId: user._id,
         }
+
+        const registered = Registration.findOne(Data);
+        if(registered) {
+          return res.status(400).json({"status": false, "msg": "user already registered"});
+        }
   
-        const registration = new Registration(Data);
+       registration = new Registration(Data);
         const result = await Registration.create(registration);
         console.log(result);
         return res.status(200).json({"status": true, "msg": "Event registration Successful", "registration": registration});
