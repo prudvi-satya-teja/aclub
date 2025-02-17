@@ -21,12 +21,12 @@ const registerEvent = async(req, res) => {
             userId: user._id,
         }
 
-        const registered = await Registration.findOne(Data);
+        const registered = await Registration.findOne({eventId: event._id, userId: user._id});
         if(registered) {
           return res.status(400).json({"status": false, "msg": "user already registered"});
         }
   
-       registration = new Registration(Data);
+       var registration = new Registration(Data);
         const result = await Registration.create(registration);
         console.log(result);
         return res.status(200).json({"status": true, "msg": "Event registration Successful", "registration": registration});
@@ -36,7 +36,6 @@ const registerEvent = async(req, res) => {
         return res.status(500).json({"status": false, "msg": "server error"});
     }
 }
- 
 
 // registration status of a user
 const registrationStatus = async(req, res) => {
@@ -61,7 +60,6 @@ const registrationStatus = async(req, res) => {
       if(!registered) {
         return res.status(400).json({"status": false, "msg": "user not registerd"});
       }
-
       return res.status(200).json({"status": true, "msg": "already registered", "registration": registered});
   }
   catch(err) {
@@ -107,9 +105,6 @@ const feedbackStatus = async(req, res) => {
       if(!event) {
           return res.status(400).json({"status": false, "msg": "event doesn't exists"});
       }
-      // if(!req.body.feedback || !req.body.rating) {
-      //     return res.status(400).json({"status": false, "msg": "please giving feedback and rating"});
-      // }
       const user = await User.findOne({rollNo: req.body.rollNo});
       if(!user) {
           return res.status(400).json({"status": false, "msg": "user not exists"});
@@ -129,7 +124,7 @@ const feedbackStatus = async(req, res) => {
       console.error(err);
       return res.status(500).json({"status": false, "msg": "server error"});
   }
-}
+}  
 
 // to get all registered Users for an event
 const getAllRegisteredUsers = async(req, res) => {
@@ -272,5 +267,7 @@ module.exports = {
     getAllRegisteredUsers,
     getEventFeedback,
     getAverageRating,
-    registrationStatus
+    registrationStatus,
+    feedbackStatus
 }
+

@@ -23,7 +23,7 @@ connectToDB(process.env.MONGO_DB_URL)
     .then( () => { console.log('mongodb connected successfully'); })
     .catch( (err) => { console.log('mongodb connection error'); })
 
-app.use('/clubs', authMiddleware.restrictToAdminOnly, clubRouter);
+app.use('/clubs', clubRouter);
 
 app.use('/events', eventRouter);
 
