@@ -78,8 +78,8 @@ const updateClub = async(req, res) => {
 const getAllClubs = async(req, res) => {
     try {
         const clubs = await Club.find();
-        if(clubs) return res.status(201).json(clubs);
-        return res.status(400).json({"msg": "No Clubs Found"})
+        if(clubs) return res.status(201).json({"status" : true, "clubs" : clubs});
+        return res.status(400).json({"status":  false, "msg": "No Clubs Found"})
     }
     catch(err) {
         console.log(err);
