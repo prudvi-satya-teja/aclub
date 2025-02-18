@@ -133,6 +133,7 @@ const getAllEvents = async(req, res) => {
 
 // to get ongoing events for a specific club
 const getOngoingEvents = async(req, res) => {
+  console.log(req.query);
     var club = await Club.findOne({clubId: req.query.clubId});
     if(!club) {
         return res.status(400).json({"status": false, "msg": "club doesn't exists"});
