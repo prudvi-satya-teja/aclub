@@ -93,7 +93,7 @@ const forgotPassword = async(req, res) => {
         }
 
         var otp = otpGenerator.generate(6, {lowerCaseAlphabets: false, specialChars: false, upperCaseAlphabets: false});
-        await otpManager.otpMap.set(rollNo, otp);
+        await otpManager.otpMap.set(req.body.rollNo, otp);
         // console.log("otp is  : ", otpManager.otpMap.get(rollNo));
 
         const sendEmail = mailSender.sendMail(mail, "otp for password resetting", `This is one time password valid for 10 minutes ${otp}`);
