@@ -29,7 +29,7 @@ app.use('/events', eventRouter);
 
 app.use('/data', eventDataRouter);
 
-app.use('/users', userRouter);
+app.use('/users', userRouter);``
 
 app.use('/registrations', registrationRouter);
 
