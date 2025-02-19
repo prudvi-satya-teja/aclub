@@ -106,9 +106,9 @@ const forgotPassword = async(req, res) => {
     }
 }
 
-// to password reset 
-const setForgotPassword = async(req, res) => {
-    if(!req.body.rollNo || !req.body.otp || !req.body.password) {
+// verify otp
+const verifyOtp = async(req, res) => {
+    if(!req.body.rollNo || !req.body.otp) {
         return res.status(404).json({"message": "please enter valid detials"});
     }
 
@@ -126,6 +126,27 @@ const setForgotPassword = async(req, res) => {
         if(otp != req.body.otp.toLowerCase()) {
             return res.status(400).json({"status": false, "msg": "please enter correct otp"});
         }   
+        return res.status(200).json({"status" : true, "message": "password changed Successfully"});
+    }
+    catch(err) {
+        console.log(err);
+        return res.status(500).json({"status": false, "msg": "serveer error"});
+    }
+}
+
+
+// to password reset 
+const setForgotPassword = async(req, res) => {
+    if(!req.body.rollNo || !req.body.password) {
+        return res.status(404).json({"message": "please enter valid detials"});
+    }
+
+    var user = await User.findOne({rollNo: req.body.rollNo});
+    if(!user) {
+        return res.status(400).json({"status": false, "msg": "user doesn't exists"});
+    }
+
+    try {
         user.password = await bcrypt.hash(req.body.password, 12);
         await user.save();
         return res.status(200).json({"status" : true, "message": "password changed Successfully"});
