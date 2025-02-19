@@ -189,5 +189,6 @@ module.exports = {
     logout,
     forgotPassword,
     setForgotPassword,
-    passwordReset
+    passwordReset,
+    verifyOtp
 }

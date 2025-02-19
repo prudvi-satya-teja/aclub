@@ -12,6 +12,8 @@ router.get('/logout', authMiddleware.restrictToAdminOnly, authenticationControll
 
 router.post('/forgot-password', authenticationController.forgotPassword);
 
+router.post('/verify-otp', authenticationController.verifyOtp);
+
 router.post('/set-forgot-password', authenticationController.setForgotPassword);
 
 router.post('/password-reset',authMiddleware.restrictToAdminOnly, authenticationController.passwordReset);
