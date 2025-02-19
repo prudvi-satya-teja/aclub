@@ -30,3 +30,5 @@ var sendMail = async(receiver, subject,  message) => {
 module.exports = {
     sendMail
 }
+
+

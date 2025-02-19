@@ -30,13 +30,13 @@ const uploadImage = multer({storage: demoStorage}).single("eventImage");
 
 // admin
 // to create event
-router.post('/create-event', authMiddleware.restrictToAdminOnly, uploadImage, eventController.createEvent);
+router.post('/create-event',  uploadImage, eventController.createEvent);
 
 // to update event
-router.patch('/update-event', authMiddleware.restrictToAdminOnly, uploadImage, eventController.updateEvent);
+router.patch('/update-event', uploadImage, eventController.updateEvent);
 
 // to delete event 
-router.delete('/delete-event', authMiddleware.restrictToAdminOnly, eventController.deleteEvent);
+router.delete('/delete-event', eventController.deleteEvent);
 
 // to get all - events
 router.post('/get-all-events', eventController.getAllEvents);
