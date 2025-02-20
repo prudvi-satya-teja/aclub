@@ -374,54 +374,6 @@ const getAllUpcomingEvents = async(req,res) => {
             '_id': 0
           }
         }
-      ][
-        {
-          '$match': {
-            '$expr': {
-              '$gt': [
-                {
-                  '$dateToString': {
-                    'format': '%Y-%m-%d', 
-                    'date': '$date'
-                  }
-                }, {
-                  '$dateToString': {
-                    'format': '%Y-%m-%d', 
-                    'date': '$$NOW'
-                  }
-                }
-              ]
-            }
-          }
-        }, {
-          '$lookup': {
-            'from': 'clubs', 
-            'localField': 'clubId', 
-            'foreignField': '_id', 
-            'as': 'result'
-          }
-        }, {
-          '$sort': {
-            'date': 1
-          }
-        }, {
-          '$unwind': {
-            'path': '$result'
-          }
-        }, {
-          '$project': {
-            'location': 1, 
-            'clubName': '$result.name', 
-            'clubId': '$result.clubId', 
-            'image': 1, 
-            'details': 1, 
-            'eventName': 1, 
-            'date': 1, 
-            'location': 1, 
-            'guest': 1, 
-            '_id': 0
-          }
-        }
       ]);
 
         console.log(result);
