@@ -59,6 +59,8 @@ router.get('/all-upcoming-events', eventController.getAllUpcomingEvents);
 // to get all past event
 router.get('/all-past-events', eventController.getAllPastEvents);
 
+router.get('/get-event-details', eventController.getEventDetails);
+
 module.exports = {
     router
 }

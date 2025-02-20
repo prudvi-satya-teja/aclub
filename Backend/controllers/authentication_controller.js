@@ -91,7 +91,7 @@ const forgotPassword = async(req, res) => {
             if(mail[1] <= '3')  mail += "@aec.edu.in";
             else mail += "@au.edu.in";
         }
-
+        console.log(mail);
         var otp = otpGenerator.generate(6, {lowerCaseAlphabets: false, specialChars: false, upperCaseAlphabets: false});
         await otpManager.otpMap.set(req.body.rollNo, otp);
         // console.log("otp is  : ", otpManager.otpMap.get(rollNo));

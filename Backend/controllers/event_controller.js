@@ -374,6 +374,51 @@ const getAllPastEvents = async(req, res) => {
   }
 }
 
+// to get one event data by name
+const getEventDetails = async(req,res) => {
+    const event = await Event.findOne({"eventName": req.query.eventName});
+    if(!event) {
+      return res.status(400).json({"status": false, "msg": "event not found"});
+    }
+
+    try {
+        var eventDetails = await Event.aggregate([
+          {
+            '$match': {
+              'eventName': req.query.eventName
+            }
+          }, {
+            '$lookup': {
+              'from': 'clubs', 
+              'localField': 'clubId', 
+              'foreignField': '_id', 
+              'as': 'result'
+            }
+          }, {
+            '$unwind': {
+              'path': '$result'
+            }
+          }, {
+            '$project': {
+              '_id': 0, 
+              'date': 1, 
+              'eventName': 1, 
+              'guest': 1, 
+              'location': 1, 
+              'details': 1, 
+              'image': 1, 
+              'clubName': '$result.name'
+            }
+          }
+        ]);
+        return res.status(200).json({"status": true, "msg": "details get successful", "eventDetails": event});
+    }
+    catch(err) {
+      console.error(err);
+      return res.status(500).json({"status": false, "msg": "server error"});
+    }
+} 
+
 
 module.exports = {
     createEvent,
@@ -385,6 +430,7 @@ module.exports = {
     getPastEvents,
     getAllOngoingEvents,
     getAllUpcomingEvents,
-    getAllPastEvents
+    getAllPastEvents,
+    getEventDetails
 }
 
