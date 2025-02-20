@@ -411,7 +411,7 @@ const getEventDetails = async(req,res) => {
             }
           }
         ]);
-        return res.status(200).json({"status": true, "msg": "details get successful", "eventDetails": event});
+        return res.status(200).json({"status": true, "msg": "details get successful", "eventDetails": eventDetails});
     }
     catch(err) {
       console.error(err);
