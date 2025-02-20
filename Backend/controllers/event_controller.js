@@ -264,26 +264,54 @@ const getPastEvents = async(req, res) => {
 const getAllOngoingEvents = async(req, res) => {
   try {
       const result = await Event.aggregate([
-          {
-            '$match': {
-              '$expr': {
-                '$eq': [
-                  {
-                    '$dateToString': {
-                      'format': '%Y-%m-%d', 
-                      'date': '$date'
-                    }
-                  }, {
-                    '$dateToString': {
-                      'format': '%Y-%m-%d', 
-                      'date': new Date()
-                    }
+        {
+          '$match': {
+            '$expr': {
+              '$eq': [
+                {
+                  '$dateToString': {
+                    'format': '%Y-%m-%d', 
+                    'date': '$date'
                   }
-                ]
-              }
+                }, {
+                  '$dateToString': {
+                    'format': '%Y-%m-%d', 
+                    'date': '$$NOW'
+                  }
+                }
+              ]
             }
           }
-        ]);
+        }, {
+          '$lookup': {
+            'from': 'clubs', 
+            'localField': 'clubId', 
+            'foreignField': '_id', 
+            'as': 'result'
+          }
+        }, {
+          '$sort': {
+            'date': 1
+          }
+        }, {
+          '$unwind': {
+            'path': '$result'
+          }
+        }, {
+          '$project': {
+            'location': 1, 
+            'clubName': '$result.name', 
+            'clubId': '$result.clubId', 
+            'image': 1, 
+            'details': 1, 
+            'eventName': 1, 
+            'date': 1, 
+            'location': 1, 
+            'guest': 1, 
+            '_id': 0
+          }
+        }
+      ]);
 
       //   console.log(result);
       return res.status(200).json({"status": true, "msg": "events get successful", "ongoing events":result})
@@ -299,46 +327,29 @@ const getAllUpcomingEvents = async(req,res) => {
 
   try {
       const result = await Event.aggregate([
-          {
-            '$match': {
-              '$expr': {
-                '$gt': [
-                  {
-                    '$dateToString': {
-                      'format': '%Y-%m-%d', 
-                      'date': '$date'
-                    }
-                  }, {
-                    '$dateToString': {
-                      'format': '%Y-%m-%d', 
-                      'date': new Date()
-                    }
+        {
+          '$match': {
+            '$expr': {
+              '$gt': [
+                {
+                  '$dateToString': {
+                    'format': '%Y-%m-%d', 
+                    'date': '$date'
                   }
-                ]
-              }
-            }
-          }, {
-            '$sort': {
-              'date': 1
+                }, {
+                  '$dateToString': {
+                    'format': '%Y-%m-%d', 
+                    'date': '$$NOW'
+                  }
+                }
+              ]
             }
           }
-        ]);
-
-        console.log(result);
-      return res.status(200).json({"status": true, "msg": "events get successful", "upcoming events":result})
-  }
-  catch(err) {
-      console.error(err);
-      return res.status(500).json({"status": false, "msg": "server error"});
-  }
-}
-
-// to get past event for a specific club
-const getAllPastEvents = async(req, res) => {
-
-  try {
-      const result = await Event.aggregate([
-        {
+        }, {
+          '$sort': {
+            'date': 1
+          }
+        }, {
           '$lookup': {
             'from': 'clubs', 
             'localField': 'clubId', 
@@ -359,7 +370,118 @@ const getAllPastEvents = async(req, res) => {
             'eventName': 1, 
             'date': 1, 
             'location': 1, 
-            'guests': 1, 
+            'guest': 1, 
+            '_id': 0
+          }
+        }
+      ][
+        {
+          '$match': {
+            '$expr': {
+              '$gt': [
+                {
+                  '$dateToString': {
+                    'format': '%Y-%m-%d', 
+                    'date': '$date'
+                  }
+                }, {
+                  '$dateToString': {
+                    'format': '%Y-%m-%d', 
+                    'date': '$$NOW'
+                  }
+                }
+              ]
+            }
+          }
+        }, {
+          '$lookup': {
+            'from': 'clubs', 
+            'localField': 'clubId', 
+            'foreignField': '_id', 
+            'as': 'result'
+          }
+        }, {
+          '$sort': {
+            'date': 1
+          }
+        }, {
+          '$unwind': {
+            'path': '$result'
+          }
+        }, {
+          '$project': {
+            'location': 1, 
+            'clubName': '$result.name', 
+            'clubId': '$result.clubId', 
+            'image': 1, 
+            'details': 1, 
+            'eventName': 1, 
+            'date': 1, 
+            'location': 1, 
+            'guest': 1, 
+            '_id': 0
+          }
+        }
+      ]);
+
+        console.log(result);
+      return res.status(200).json({"status": true, "msg": "events get successful", "upcoming events":result})
+  }
+  catch(err) {
+      console.error(err);
+      return res.status(500).json({"status": false, "msg": "server error"});
+  }
+}
+
+// to get past event for a specific club
+const getAllPastEvents = async(req, res) => {
+
+  try {
+      const result = await Event.aggregate([
+        {
+          '$match': {
+            '$expr': {
+              '$lt': [
+                {
+                  '$dateToString': {
+                    'format': '%Y-%m-%d', 
+                    'date': '$date'
+                  }
+                }, {
+                  '$dateToString': {
+                    'format': '%Y-%m-%d', 
+                    'date': '$$NOW'
+                  }
+                }
+              ]
+            }
+          }
+        }, {
+          '$lookup': {
+            'from': 'clubs', 
+            'localField': 'clubId', 
+            'foreignField': '_id', 
+            'as': 'result'
+          }
+        }, {
+          '$sort': {
+            'date': -1
+          }
+        }, {
+          '$unwind': {
+            'path': '$result'
+          }
+        }, {
+          '$project': {
+            'location': 1, 
+            'clubName': '$result.name', 
+            'clubId': '$result.clubId', 
+            'image': 1, 
+            'details': 1, 
+            'eventName': 1, 
+            'date': 1, 
+            'location': 1, 
+            'guest': 1, 
             '_id': 0
           }
         }
