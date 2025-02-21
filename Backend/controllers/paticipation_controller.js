@@ -12,6 +12,7 @@ const getClubMembers = async (req, res) => {
         const result = await Participation.aggregate([
           {
             '$match': {
+              'clubId': club._id, 
               'role': {
                 '$in': [
                   'admin', 'coordinator'
