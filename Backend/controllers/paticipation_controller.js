@@ -39,6 +39,11 @@ const getClubMembers = async (req, res) => {
                 'role': 1, 
                 '_id': 0
               }
+            },
+            {
+              'sort': {
+                'role': 1
+              }
             }
           ]);
 
