@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
-const secret = "ACLUB65@70";
+require("dotenv").config()
+
+const secret = process.env.SECRET_KEY;
 
 const setToken = async(user) => {
     return jwt.sign({
