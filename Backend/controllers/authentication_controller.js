@@ -58,10 +58,6 @@ const login = async(req, res) => {
             }
             
             const token = await setToken(user);
-            // res.cookie("uid", token, {
-            //     httpOnly : true,
-            //     maxAge: "100d"    
-            // });
             console.log(token);
             return res.status(200).json({"status": true, "msg": "user login successful", "token": token});
     }

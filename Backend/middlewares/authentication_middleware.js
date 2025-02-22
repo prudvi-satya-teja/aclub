@@ -3,12 +3,11 @@ const Participation = require('../models/participation_model');
 const {verifyToken} = require('../services/authentication');
 
 const restrictToLoggedUserOnly = async(req, res, next) => {
-    const token = req.headers.token;
+    const token = req.headers.authorizaion.token;            
     try {
         if(!token) {
             return res.status(400).json({"status": false, "msg": "no token provided"});
-        }
-
+        }    
         const decodedToken = await verifyToken(token);
 
         if(!decodedToken) {
