@@ -105,7 +105,7 @@ const forgotPassword = async(req, res) => {
 // verify otp
 const verifyOtp = async(req, res) => {
     if(!req.body.rollNo || !req.body.otp) {
-        return res.status(404).json({"message": "please enter valid detials"});
+        return res.status(404).json({"status" : false, "message": "please enter valid detials"});
     }
 
     var user = await User.findOne({rollNo: req.body.rollNo});
@@ -122,7 +122,7 @@ const verifyOtp = async(req, res) => {
         if(otp != req.body.otp.toLowerCase()) {
             return res.status(400).json({"status": false, "msg": "please enter correct otp"});
         }   
-        return res.status(200).json({"status" : true, "message": "password changed Successfully"});
+        return res.status(200).json({"status" : true, "message": "change you password"});
     }
     catch(err) {
         console.log(err);
@@ -134,7 +134,7 @@ const verifyOtp = async(req, res) => {
 // to password reset 
 const setForgotPassword = async(req, res) => {
     if(!req.body.rollNo || !req.body.password) {
-        return res.status(404).json({"message": "please enter valid detials"});
+        return res.status(404).json({"status" : false, "message": "please enter valid detials"});
     }
 
     var user = await User.findOne({rollNo: req.body.rollNo});
