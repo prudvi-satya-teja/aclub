@@ -104,6 +104,7 @@ const forgotPassword = async(req, res) => {
 
 // verify otp
 const verifyOtp = async(req, res) => {
+    console.log(req.body);
     if(!req.body.rollNo || !req.body.otp) {
         return res.status(404).json({"status" : false, "message": "please enter valid detials"});
     }
@@ -114,11 +115,8 @@ const verifyOtp = async(req, res) => {
     }
 
     try {
-        var otp = otpManager.otpMap.get(req.body.rollNo);
+        var otp = await otpManager.otpMap.get(req.body.rollNo);
         console.log(otp);
-        if(!otp) {
-            return res.status(400).json({"status": false, "msg": "please enter correct user"});
-        }
         if(otp != req.body.otp.toLowerCase()) {
             return res.status(400).json({"status": false, "msg": "please enter correct otp"});
         }   
