@@ -27,7 +27,7 @@ const addUser = async(req, res) => {
                 lastName: req.body.lastName, 
                 rollNo: req.body.rollNo,  
                 phoneNo: req.body.phoneNo, 
-                password: await bcrypt.hash(req.body.password, 12)
+                password: await bcrypt.hash(req.body.password? req.body.password : "aclub@12", 12)
             }
             
             var newUser = new User(userData);
@@ -129,6 +129,7 @@ const updateUser = async(req, res) => {
         return res.status(500).json({"Status": false, "msg": "Server Error" });
     }
 }
+
 
 // to delete user
 const deleteUser = async(req, res) => {

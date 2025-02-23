@@ -115,7 +115,7 @@ const verifyOtp = async(req, res) => {
     }
 
     try {
-        var otp = await otpManager.otpMap.get(req.body.rollNo);
+        var otp =  otpManager.otpMap.get(req.body.rollNo);
         console.log(otp);
         if(otp != req.body.otp.toLowerCase()) {
             return res.status(400).json({"status": false, "msg": "please enter correct otp"});

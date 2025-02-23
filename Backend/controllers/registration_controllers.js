@@ -5,6 +5,7 @@ const User = require("../models/user_model");
 // to register for an event
 const registerEvent = async(req, res) => {
     try {
+      console.log("rollNo", req.body);
         const event = await Event.findOne({eventName: req.body.eventName});
         if(!event) {
             return res.status(400).json({"status": false, "msg": "event doesn't exists"});
