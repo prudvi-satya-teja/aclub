@@ -19,9 +19,10 @@ const addUser = async(req, res) => {
         var user = await User.findOne({rollNo: req.body.rollNo});
 
         if(!user) {
-            if(!req.body.phoneNo || !await User.findOne({phoneNo: req.body.phoneNo})) {
-                return res.status(400).json({"status": false, "msg": "Phone no already exists or null"});
-            }
+            console.log(req.body);
+            // if(!req.body.phoneNo || !await User.findOne({phoneNo: req.body.phoneNo})) {
+            //     return res.status(400).json({"status": false, "msg": "Phone no already exists or null"});
+            // }
             var userData = {
                 firstName: req.body.firstName, 
                 lastName: req.body.lastName, 
