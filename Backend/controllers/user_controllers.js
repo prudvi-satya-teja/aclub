@@ -7,7 +7,7 @@ const Club = require('../models/club_model');
 // to add user
 const addUser = async(req, res) => {
     try {
-        if(!req.body.firstName || !req.body.rollNo || !req.body.clubId) {
+        if(!req.body.firstName || !req.body.rollNo || !req.body.clubId ) {
             return res.status(200).json({"Status" : false, "msg": "Please enter all details"});
         }      
 
@@ -19,7 +19,7 @@ const addUser = async(req, res) => {
         var user = await User.findOne({rollNo: req.body.rollNo});
 
         if(!user) {
-            if(await User.findOne({phoneNo: req.body.phoneNo})) {
+            if(!req.body.phoneNo || !await User.findOne({phoneNo: req.body.phoneNo})) {
                 return res.status(400).json({"status": false, "msg": "Phone no already exists"});
             }
             var userData = {
@@ -32,7 +32,6 @@ const addUser = async(req, res) => {
             
             var newUser = new User(userData);
             user = await newUser.save();
-            // console.log(user);
         }
 
         console.log("user", user);

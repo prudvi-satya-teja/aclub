@@ -47,7 +47,7 @@ const registrationStatus = async(req, res) => {
       }
 
       const user = await User.findOne({rollNo: req.query.rollNo});
-      console.log(user, req.query.rollNo);
+     
       if(!user) {
           return res.status(400).json({"status": false, "msg": "please enter valid rollno"});
       }
