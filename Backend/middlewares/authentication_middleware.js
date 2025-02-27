@@ -9,17 +9,16 @@ const restrictToLoggedUserOnly = async(req, res, next) => {
             return res.status(400).json({"status": false, "msg": "no token provided"});
         }    
         const decodedToken = await verifyToken(token);
-
+    
         if(!decodedToken) {
             return res.status(400).json({"status": false, "msg": "Invalid token"});
         } 
-
+                  
         var rollNo = decodedToken.rollNo;
         const user = await User.findOne({rollNo: rollNo});
 
         req.user = user;
-        next();
-
+        next();    
     }
     catch(err) {
         console.err(err);

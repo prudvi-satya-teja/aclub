@@ -5,7 +5,6 @@ const mailSender = require('./mail_sender_controller');
 const otpGenerator = require('otp-generator');
 const otpManager = require('../services/otp');
 
-
 // to signup 
 const signup = async(req, res) => {
     try {
@@ -127,7 +126,6 @@ const verifyOtp = async(req, res) => {
         return res.status(500).json({"status": false, "msg": "serveer error"});
     }
 }
-
 
 // to password reset 
 const setForgotPassword = async(req, res) => {
