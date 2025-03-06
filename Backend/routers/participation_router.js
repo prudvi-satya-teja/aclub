@@ -5,7 +5,7 @@ const clubController = require('../controllers/paticipation_controller');
 // to get club members
 router.get('/get-club-members', clubController.getClubMembers);
 
-module.exports = {
+module.exports= {
     router
 }
 

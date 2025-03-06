@@ -1,31 +1,11 @@
 const express = require('express');
 const clubController = require('../controllers/club_controller');
-const authMiddleware = require('../middlewares/authentication_middleware');
+const authMiddleware = require('../middlewares/authentication_authorizarization_middleware');
 
 const router = express.Router();
 
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-
-const imagePath = path.join(__dirname, '..', 'public', 'images');
-
-if(!fs.existsSync(imagePath)) {
-    fs.mkdirSync(imagePath, {recursive: true});
-}
-
-const demoStorage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        console.log("imagepath", imagePath);
-        cb(null, imagePath);
-    },
-    filename: function(req, file, cb) {
-        console.log("filename", file.originalname);
-        cb(null, file.originalname);
-    }
-})
-
-const uploadImage = multer({storage: demoStorage}).single("clubImage");
+const {upload} = require('../storage/storage');
+const uploadImage = upload.single("clubImage");
 
 // create club
 router.post('/create-club', authMiddleware.restrictToAdminOnly, uploadImage, clubController.createClub);

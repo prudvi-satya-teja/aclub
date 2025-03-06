@@ -4,6 +4,7 @@ const Participation  = require('../models/participation_model');
 const bcrypt = require('bcrypt');
 const Club = require('../models/club_model');
 
+
 // to add user
 const addUser = async(req, res) => {
     try {
@@ -79,18 +80,73 @@ const addUser = async(req, res) => {
 // to get user details  // need to add club and their roles 
 const getUserDetails = async(req, res) => {
     try {
-        if(!req.query.rollNo) {
+        
+        var user = await User.findOne({rollNo: req.body.rollNo});
+        console.log("body", req.body);
+        if(!user) {
             return res.status(400).json({"status": false, "msg": "Please enter valid rollno"});
         }
-        var user = await User.findOne({rollNo: req.query.rollNo}, {firstName: 1, lastName: 1, rollNo: 1, phoneNo: 1});
+
+        var userDetails = await User.aggregate([
+            {
+              '$match': {
+                '_id': user._id
+              }
+            }, {
+              '$lookup': {
+                'from': 'participations', 
+                'localField': '_id', 
+                'foreignField': 'userId', 
+                'as': 'result'
+              }
+            }, {
+              '$unwind': {
+                'path': '$result'
+              }
+            }, {
+              '$lookup': {
+                'from': 'clubs', 
+                'localField': 'result.clubId', 
+                'foreignField': '_id', 
+                'as': 'result2'
+              }
+            }, {
+              '$unwind': {
+                'path': '$result2'
+              }
+            }, {
+              '$group': {
+                '_id': '$rollNo', 
+                'firstName': {
+                  '$first': '$firstName'
+                }, 
+                'lastName': {
+                  '$first': '$lastName'
+                }, 
+                'phoneNo': {
+                  '$first': '$phoneNo'
+                }, 
+                // 'password': {
+                //   '$first': '$password'
+                // }, 
+                'clubs': {
+                  '$push': {
+                    'clubId': '$result2.clubId', 
+                    'role': '$result.role'
+                  }
+                }
+              }
+            }
+          ]);
         console.log(user);
         if(!user) {
             return res.status(500).json({"status": true, "msg": "user not exists"});
         }
         // need to get the club participated and their roles
-        return res.status(500).json({"status": true,  "msg": "Successfully get user details", "details": user});
+        return res.status(500).json({"status": true,  "msg": "Successfully get user details", "details": userDetails});
     }
     catch(err) {
+        console.log(err);
         return res.status(500).json({"status": false, "msg": ""})
     }
 }
@@ -129,7 +185,6 @@ const updateUser = async(req, res) => {
         return res.status(500).json({"status": false, "msg": "Server Error" });
     }
 }
-
 
 // to delete user
 const deleteUser = async(req, res) => {
@@ -234,46 +289,3 @@ module.exports = {
     getAllUsers
 }
 
-
-// [
-//     {
-//       $lookup: {
-//         from: "users",
-//         localField: "userId",
-//         foreignField: "_id",
-//         as: "userInfo",
-//       },
-//     },
-//     {
-//       $unwind: "$userInfo",
-//     },
-//     {
-//       $match: { "userInfo.rollNo": "22a91a0565" }, // Match the roll number
-//     },
-//     {
-//       $lookup: {
-//         from: "clubs",
-//         localField: "clubId",
-//         foreignField: "_id",
-//         as: "clubInfo",
-//       },
-//     },
-//     {
-//       $unwind: "$clubInfo",
-//     },
-//     {
-//       $group: {
-//         _id: "$userInfo._id",
-//         firstName: { $first: "$userInfo.firstName" },
-//         lastName: { $first: "$userInfo.lastName" },
-//         rollNo: { $first: "$userInfo.rollNo" },
-//         clubs: {
-//           $push: {
-//             clubName: "$clubInfo.name",
-//             clubId: "$clubInfo.clubId",
-//             role: "$role",
-//           },
-//         },
-//       },
-//     }
-//   ]

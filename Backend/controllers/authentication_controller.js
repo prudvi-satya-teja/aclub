@@ -1,9 +1,10 @@
-const User = require('../models/user_model');
 const bcrypt = require('bcrypt');
 const {setToken} = require('../services/authentication');
 const mailSender = require('./mail_sender_controller');
 const otpGenerator = require('otp-generator');
 const otpManager = require('../services/otp');
+
+const User = require('../models/user_model');
 
 // to signup 
 const signup = async(req, res) => {
@@ -47,6 +48,7 @@ const login = async(req, res) => {
         return res.status(400).json({"status": false, "msg": "please enter all details"});
     }   
     const user = await User.findOne({rollNo: (req.body.rollNo).toLowerCase()});
+    
     if(!user) {
         return res.status(400).json({"status": false, "msg": "user doesn't exists"});
     }
@@ -55,13 +57,66 @@ const login = async(req, res) => {
             if(!await bcrypt.compare(req.body.password, user.password)) {
                 return res.status(400).json({"status": false, "msg": "please enter correct password"});
             }
-            
-            const token = await setToken(user);
+             const userDetails = await User.aggregate([
+                {
+                  '$match': {
+                    '_id': user._id
+                  }
+                }, {
+                  '$lookup': {
+                    'from': 'participations', 
+                    'localField': '_id', 
+                    'foreignField': 'userId', 
+                    'as': 'result'
+                  }
+                }, {
+                  '$unwind': {
+                    'path': '$result'
+                  }
+                }, {
+                  '$lookup': {
+                    'from': 'clubs', 
+                    'localField': 'result.clubId', 
+                    'foreignField': '_id', 
+                    'as': 'result2'
+                  }
+                }, {
+                  '$unwind': {
+                    'path': '$result2'
+                  }
+                }, {
+                  '$group': {
+                    '_id': '$rollNo', 
+                    'firstName': {
+                      '$first': '$firstName'
+                    }, 
+                    'lastName': {
+                      '$first': '$lastName'
+                    }, 
+                    'phoneNo': {
+                      '$first': '$phoneNo'
+                    }, 
+                    // 'password': {
+                    //   '$first': '$password'
+                    // }, 
+                    'clubs': {
+                      '$push': {
+                        'clubId': '$result2.clubId', 
+                        'role': '$result.role'
+                      }
+                    }
+                  }
+                }
+              ]);
+
+            console.log("userdteai;s ", userDetails);
+            const token = await setToken(user, userDetails);
             console.log(token);
             return res.status(200).json({"status": true, "msg": "user login successful", "token": token});
     }
     catch(err) {
-             return res.status(400).json({"status": false,"msg": "Please enter correct password"});
+        console.error(err);
+             return res.status(400).json({"status": false,"msg": "Server error"});
     }
 } 
 

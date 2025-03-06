@@ -14,7 +14,7 @@ const { router: eventDataRouter } = require('./routers/even_data_router');
 const { router: participationRouter } = require('./routers/participation_router');
 const { router: authenticationRouter } = require('./routers/authentication_router');
 
-const authMiddleware = require('./middlewares/authentication_middleware');
+const authMiddleware = require('./middlewares/authentication_authorizarization_middleware');
 
 app.use(cors());
 app.use(express.json());
