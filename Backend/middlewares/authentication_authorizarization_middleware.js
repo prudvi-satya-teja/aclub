@@ -44,7 +44,6 @@ const whichClubAdmin = (clubs) => {
     return adminClub ? adminClub.clubId : null; 
 };
 
-
 const restrictToAdminOnly = async(req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
@@ -123,12 +122,15 @@ const restrictToAdminOnly = async(req, res, next) => {
 
         const clubs = userDetails.length > 0 ? userDetails[0].clubs : [];
         console.log("Before calling isAdmin, clubs:", JSON.stringify(clubs, null, 2)); 
-
+          
+        console.log("middelware body before update", req.body);
         req.user = user;
         req.body.rollNo = rollNo;
         req.body.isAdmin = decodedToken.admin;
         req.body.clubId = whichClubAdmin(clubs);
-        console.log(req.body.clubId);
+        
+        console.log("func call" ,whichClubAdmin(clubs));
+        console.log("middelware body after update", req.body);
 
         next();  
 

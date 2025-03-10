@@ -18,6 +18,8 @@ const authMiddleware = require('./middlewares/authentication_authorizarization_m
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 
 connectToDB(process.env.MONGO_DB_URL)
     .then( () => { console.log('mongodb connected successfully'); })

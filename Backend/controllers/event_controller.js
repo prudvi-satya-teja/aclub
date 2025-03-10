@@ -5,7 +5,7 @@ const { events } = require('../models/participation_model');
 
 // to create event
 const createEvent = async(req, res) => {
-  
+    console.log("controller body", req.body);
     if(!req.body.clubId || !req.body.eventName) {
         return res.status(400).json({"status": false, "msg": "please enter details "});
     }
@@ -32,7 +32,8 @@ const createEvent = async(req, res) => {
         guest: req.body.guest ? req.body.guest : "Special guest",
         location: req.body.location ? req.body.location : "Aditya university",
         mainTheme: req.body.mainTheme ? req.body.theme : "update soon",
-        details: req.file.path? req.file.path : null,
+        details:req.body.details ? req.body.details: "update soon",
+        image:  req.file.path? req.file.path : null,
     }    
 
     try {

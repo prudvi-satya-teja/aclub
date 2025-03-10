@@ -19,7 +19,6 @@ router.patch('/update-event', authMiddleware.restrictToAdminOnly, uploadImage, e
 // to delete event 
 router.delete('/delete-event', authMiddleware.restrictToAdminOnly, eventController.deleteEvent);
 
-
 // for all
 // to get all - events
 router.post('/get-all-events', eventController.getAllEvents);
