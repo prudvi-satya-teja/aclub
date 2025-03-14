@@ -80,12 +80,14 @@ const addUser = async(req, res) => {
 // to get user details  // need to add club and their roles 
 const getUserDetails = async(req, res) => {
     try {
-        
+        console.log(req.body.rollNo);
         var user = await User.findOne({rollNo: req.body.rollNo});
         console.log("body", req.body);
         if(!user) {
             return res.status(400).json({"status": false, "msg": "Please enter valid rollno"});
         }
+
+        console.log(user._id);
 
         var userDetails = await User.aggregate([
             {
@@ -139,6 +141,19 @@ const getUserDetails = async(req, res) => {
             }
           ]);
         console.log(user);
+
+        if (userDetails.length === 0) {
+          userDetails = [{
+              _id: user.rollNo,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              phoneNo: user.phoneNo,
+              clubs: []
+          }];
+      }
+        
+        console.log("userdetaisl", userDetails);
+
         if(!user) {
             return res.status(500).json({"status": true, "msg": "user not exists"});
         }
@@ -150,6 +165,82 @@ const getUserDetails = async(req, res) => {
         return res.status(500).json({"status": false, "msg": ""})
     }
 }
+
+// const getUserDetails = async (req, res) => {
+//     try {
+//         console.log(req.body.rollNo);
+
+//         var user = await User.findOne({ rollNo: req.body.rollNo });
+
+//         if (!user) {
+//             return res.status(400).json({ "status": false, "msg": "Please enter valid rollno" });
+//         }
+
+//         console.log("User ID:", user._id);
+
+//         var userDetails = await User.aggregate([
+//             {
+//                 '$match': { '_id': new mongoose.Types.ObjectId(user._id) }  // Ensure ObjectId type
+//             },
+//             {
+//                 '$lookup': {
+//                     'from': 'participations',
+//                     'localField': '_id',
+//                     'foreignField': 'userId',
+//                     'as': 'result'
+//                 }
+//             },
+//             {
+//                 '$unwind': { 'path': '$result', 'preserveNullAndEmptyArrays': true }  // Prevents errors when no participation
+//             },
+//             {
+//                 '$lookup': {
+//                     'from': 'clubs',
+//                     'localField': 'result.clubId',
+//                     'foreignField': '_id',
+//                     'as': 'result2'
+//                 }
+//             },
+//             {
+//                 '$unwind': { 'path': '$result2', 'preserveNullAndEmptyArrays': true }  // Prevents errors when no club
+//             },
+//             {
+//                 '$group': {
+//                     '_id': '$rollNo',
+//                     'firstName': { '$first': '$firstName' },
+//                     'lastName': { '$first': '$lastName' },
+//                     'phoneNo': { '$first': '$phoneNo' },
+//                     'clubs': {
+//                         '$push': {
+//                             'clubId': { '$ifNull': ['$result2._id', null] },  // If no club, return null
+//                             'role': { '$ifNull': ['$result.role', null] }  // If no role, return null
+//                         }
+//                     }
+//                 }
+//             }
+//         ]);
+
+//         // Ensure userDetails is not empty
+//         if (userDetails.length === 0) {
+//             userDetails = [{
+//                 _id: user.rollNo,
+//                 firstName: user.firstName,
+//                 lastName: user.lastName,
+//                 phoneNo: user.phoneNo,
+//                 clubs: []
+//             }];
+//         }
+
+//         console.log("User details:", userDetails[0]);
+
+//         return res.status(200).json({ "status": true, "msg": "Successfully retrieved user details", "details": userDetails[0] });
+
+//     } catch (err) {
+//         console.log("Error:", err);
+//         return res.status(500).json({ "status": false, "msg": "An error occurred", "error": err.message });
+//     }
+// };
+
 
 // to update user details
 const updateUser = async(req, res) => {
