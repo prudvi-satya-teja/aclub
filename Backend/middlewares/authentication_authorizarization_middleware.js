@@ -38,7 +38,7 @@ const whichClubAdmin = (clubs) => {
 
     const adminClub = clubs.find(club => {
         console.log("Checking club:", club);
-        return club.role === "admin"; // 
+        return club.role === "admin"; 
     });
 
     return adminClub ? adminClub.clubId : null; 
@@ -61,7 +61,6 @@ const restrictToAdminOnly = async(req, res, next) => {
         } 
         var rollNo = decodedToken.rollNo;
         const user = await User.findOne({rollNo: rollNo});
-        
         if(!decodedToken.admin) {
             return res.status(400).json({"status": false, "msg": "You are not a admin"});
         }
@@ -124,8 +123,8 @@ const restrictToAdminOnly = async(req, res, next) => {
         console.log("Before calling isAdmin, clubs:", JSON.stringify(clubs, null, 2)); 
           
         console.log("middelware body before update", req.body);
-        req.user = user;
-        req.body.rollNo = rollNo;
+        // req.user = user;
+        // req.body.rollNo = rollNo;
         req.body.isAdmin = decodedToken.admin;
         req.body.clubId = whichClubAdmin(clubs);
         

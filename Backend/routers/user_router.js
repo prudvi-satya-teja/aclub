@@ -8,11 +8,10 @@ const authMiddleware = require('../middlewares/authentication_authorizarization_
 router.post('/add-user', authMiddleware.restrictToAdminOnly, userController.addUser);
 
 // to delete user
-router.delete('/delete-user', authMiddleware.restrictToAdminOnly, userController.deleteUser);
+router.post('/delete-user',  userController.deleteUser);
 
 // to update user
-router.patch('/update-user', authMiddleware.restrictToAdminOnly, userController.updateUser);
-
+router.post('/update-user',  userController.updateUser);
 
 // for all
 // to get user details

@@ -7,17 +7,17 @@ require("dotenv").config();
 const router = express.Router();
 
 const {upload} = require('../storage/storage');
-const uploadImage = upload.single("eventImage");
+const uploadImage =  upload.single("eventImage");
 
 // admin
 // to create event
-router.post('/create-event', authMiddleware.restrictToAdminOnly, uploadImage ,eventController.createEvent);
+router.post('/create-event', authMiddleware.restrictToAdminOnly,  uploadImage,  eventController.createEvent);
 
 // to update event
-router.patch('/update-event', authMiddleware.restrictToAdminOnly, uploadImage, eventController.updateEvent);
+router.post('/update-event',  uploadImage, eventController.updateEvent);
 
 // to delete event 
-router.delete('/delete-event', authMiddleware.restrictToAdminOnly, eventController.deleteEvent);
+router.post('/delete-event',eventController.deleteEvent);
 
 // for all
 // to get all - events

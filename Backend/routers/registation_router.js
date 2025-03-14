@@ -9,14 +9,14 @@ const authMiddleware = require('../middlewares/authentication_authorizarization_
 router.post('/register-event', authMiddleware.restrictToLoggedUserOnly, registrationController.registerEvent);
 
 // to give feedback (include rating is mandatory at the end of submission)
-router.post('/give-feedback', authMiddleware.restrictToLoggedUserOnly, registrationController.giveFeedback);
+router.post('/give-feedback',  registrationController.giveFeedback);
 
 
 // get all registered user
-router.get('/registered-users',registrationController.getAllRegisteredUsers);
+router.get('/registered-users', registrationController.getAllRegisteredUsers);
 
 // to check user registered or not
-router.get('/registration-status', authMiddleware.restrictToLoggedUserOnly,  registrationController.registrationStatus);
+router.get('/registration-status',  authMiddleware.restrictToLoggedUserOnly,registrationController.registrationStatus);
 
 // get event feedback
 router.get('/get-feedback', registrationController.getEventFeedback);

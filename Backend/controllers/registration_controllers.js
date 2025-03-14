@@ -41,6 +41,7 @@ const registerEvent = async(req, res) => {
 // registration status of a user
 const registrationStatus = async(req, res) => {
   try {
+    console.log(req.body);
       const event = await Event.findOne({eventName: req.query.eventName});
       if(!event) {
           return res.status(400).json({"status": false, "msg": "event doesn't exists"});
