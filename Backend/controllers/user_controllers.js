@@ -144,7 +144,7 @@ const getUserDetails = async(req, res) => {
 
         if (userDetails.length === 0) {
           userDetails = [{
-              _id: user.rollNo,
+              rollNo: user.rollNo,
               firstName: user.firstName,
               lastName: user.lastName,
               phoneNo: user.phoneNo,
