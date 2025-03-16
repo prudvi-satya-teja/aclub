@@ -90,6 +90,7 @@ const createEvent = async(req, res) => {
 // }  
 const updateEvent = async (req, res) => {
     try {
+      console.log(req.body);
         const { clubId, eventName, newEventName, newDate, newGuest, newLocation, newMainTheme, newDetails } = req.body;
 
         // Validate input
@@ -107,18 +108,18 @@ const updateEvent = async (req, res) => {
         const event = await Event.findOne({ eventName, clubId: club._id });
         if (!event) {
             return res.status(404).json({ success: false, msg: "Event does not exist" });
-        }
+        }  
 
         const imageUrl = `${req.file?.path}`;
 
         // Prepare updated details
         const updatedDetails = {
-            eventName: newEventName ?? event.eventName,
-            date: newDate ?? event.date,
-            guest: newGuest ?? event.guest,
-            location: newLocation ?? event.location,
-            mainTheme: newMainTheme ?? event.mainTheme,
-            details: newDetails ?? event.details,
+            eventName: newEventName ? newEventName :  event.eventName,
+            date: newDate ? newDate:  event.date,
+            guest: newGuest ? newGuest:  event.guest,
+            location: newLocation ?newLocation:   event.location,
+            mainTheme: newMainTheme ?newMainTheme:  event.mainTheme,
+            details: newDetails ?newEventName:  event.details,
             image: imageUrl ? imageUrl : event.image,
         };
 
@@ -536,7 +537,9 @@ const getEventDetails = async(req,res) => {
               'location': 1, 
               'details': 1, 
               'image': 1, 
-              'clubName': '$result.name'
+              'clubName': '$result.name',
+              'clubId': '$result.clubId', 
+              'mainTheme': 1
             }
           }
         ]);

@@ -14,7 +14,7 @@ const uploadImage =  upload.single("eventImage");
 router.post('/create-event', authMiddleware.restrictToAdminOnly,  uploadImage,  eventController.createEvent);
 
 // to update event
-router.post('/update-event',  uploadImage, eventController.updateEvent);
+router.post('/update-event',  authMiddleware.restrictToAdminOnly,  uploadImage, eventController.updateEvent);
 
 // to delete event 
 router.post('/delete-event',eventController.deleteEvent);
