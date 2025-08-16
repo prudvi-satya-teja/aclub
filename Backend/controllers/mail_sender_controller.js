@@ -6,10 +6,10 @@ var sendMail = async (receiver, subject, message) => {
         service: "gmail",
         auth: {
             user: "adityauniversityclubs@gmail.com",
-            pass: "iiyg cqtg bbdf krsa",
+            pass: "bsig rwqe mbfj gmtb",
         },
     });
-    console.log();
+    console.log("hello");
 
     const mailOptions = {
         from: "adityauniversityclubs@gmail.com",
@@ -21,9 +21,11 @@ var sendMail = async (receiver, subject, message) => {
     await transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             // return res.status(500).json(error);
+            console.log(error);
             return error;
         }
         // return res.staus(200).json("mail send");
+        console.log("mail send successful");
         return "mail send";
     });
 };
