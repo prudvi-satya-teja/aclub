@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 
 class AuthService {
   final String baseUrl =// 'https://lh8bs0gl-3001.inc1.devtunnels.ms';
-  'https://aclub.onrender.com';
+  'https://auclub.onrender.com';
   // 'https://lh8bs0gl-3001.inc1.devtunnels.ms';
   //'https://aclub.onrender.com';
 
@@ -316,8 +316,8 @@ Future<Map<String, dynamic>> eventCreation(
         String details,
         File? image, // Keep this as File? for optional image uploads
         ) async {
-      String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzhhMTA2MWJlZGRmZmE4ZGVmMTIxYTQiLCJhZG1pbiI6dHJ1ZSwicm9sbE5vIjoiMjJhOTFhMDU3MCIsImlhdCI6MTc0MTk1Njk2OCwiZXhwIjoxNzUwNTk2OTY4fQ.Msj8rmceN-rO4MnRs8xOJNPv1QhQD7ULSYEuSUy2-G0"; // Replace with actual token logic
-
+      // String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzhhMTA2MWJlZGRmZmE4ZGVmMTIxYTQiLCJhZG1pbiI6dHJ1ZSwicm9sbE5vIjoiMjJhOTFhMDU3MCIsImlhdCI6MTc0MTk1Njk2OCwiZXhwIjoxNzUwNTk2OTY4fQ.Msj8rmceN-rO4MnRs8xOJNPv1QhQD7ULSYEuSUy2-G0"; // Replace with actual token logic
+      String token = Shared().token;
       final request = http.MultipartRequest(
         'POST',
         Uri.parse('$baseUrl/events/create-event'),
