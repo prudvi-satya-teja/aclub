@@ -41,7 +41,7 @@ app.use('/auth', authenticationRouter);
 
 setInterval(() => {
     try {
-        fetch('https://aclub.onrender.com'); 
+        fetch('https://auclub.onrender.com'); 
     }
     catch(e) {
     }
