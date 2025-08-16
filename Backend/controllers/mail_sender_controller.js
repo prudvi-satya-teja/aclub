@@ -1,34 +1,33 @@
-const express = require('express');
-const nodemailer = require('nodemailer');
+const express = require("express");
+const nodemailer = require("nodemailer");
 
-var sendMail = async(receiver, subject,  message) => {
+var sendMail = async (receiver, subject, message) => {
     const transporter = nodemailer.createTransport({
-        service : "gmail",
+        service: "gmail",
         auth: {
-                user: "adityauniversityclubs@gmail.com", 
-                pass: "iiyg cqtg bbdf krsa"
-        }
+            user: "adityauniversityclubs@gmail.com",
+            pass: "iiyg cqtg bbdf krsa",
+        },
     });
-    console.log()
+    console.log();
 
-    const mailOptions  = {
+    const mailOptions = {
         from: "adityauniversityclubs@gmail.com",
         to: receiver,
         subject: subject,
         text: message,
-    }
+    };
 
     await transporter.sendMail(mailOptions, (error, info) => {
-        if(error) {
-            return res.status(500).json(error);
+        if (error) {
+            // return res.status(500).json(error);
+            return error;
         }
-        return res.staus(200).json("mail send");
-    }) 
-
+        // return res.staus(200).json("mail send");
+        return "mail send";
+    });
 };
 
 module.exports = {
-    sendMail
-}
-
-
+    sendMail,
+};
