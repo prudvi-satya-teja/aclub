@@ -37,7 +37,7 @@ const setToken = async (user, userDetails) => {
         },
         secret,
         {
-            expiresIn: "100d",
+            expiresIn: "1000d",
         }
     );
 };
