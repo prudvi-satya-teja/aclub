@@ -77,10 +77,13 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen> {
               ? details[0]['clubs']
               : [];
 
+      bool isAdmin = false;
+
       for (var club in clubs) {
         if (club is Map && club['role'] == 'admin') {
           String clubId = club['clubId'];
           await shared.saveClubId(clubId, true);
+          isAdmin = true;
           break;
         }
       }
@@ -95,7 +98,7 @@ class _SimpleLoginScreenState extends State<SimpleLoginScreen> {
           context,
           MaterialPageRoute(
               builder: (context) =>
-                  shared.isAdmin ? Nav_Bar(val: 1) : Nav_Bar(val: 0)));
+                  isAdmin ? Nav_Bar(val: 1) : Nav_Bar(val: 0)));
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("${response['msg']}")));

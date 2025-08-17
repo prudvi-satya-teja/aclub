@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-
 import '../auth/login.dart';
 import '../rollno.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +10,7 @@ import '../events/detailedallpast.dart';
 import 'bottom_Navbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,91 +21,153 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   AuthService authService = AuthService();
-  List<dynamic> allData = [];
-  void getAllClubsData() async {
-    final res = await authService.getAllClubsData();
-    if (res.containsKey('status') && res['status'] == true) {
-      print('allDataResponse:res');
-      setState(() {
-        allData = res['clubs'];
-      });
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(res['msg'])));
-    }
-  }
-
-  final List<String> carouselItems = [
-    'assets/gdg/gdg_5.jpg', //D:\pro\aclub\assets\gdg\gdg_2.jpg
-    'assets/leo/leo_2.jpg', // D:\pro\aclub\assets\leo\leo_2.jpg
-    'assets/red/red_6.jpg', //D:\pro\aclub\assets\red\red_6.jpg
-    'assets/rot/rot_5.jpg',
-  ];
-
-  late AnimationController _animationController;
-  final CarouselSliderController _carouselController =
-      CarouselSliderController();
-  int _currentCarouselIndex = 0;
-  late Animation<double> _fadeAnimation;
   AuthService authServices = AuthService();
+
+  List<dynamic> allData = [];
   List<dynamic> getAllLiveData = [];
   List<dynamic> getAllupComingData = [];
   List<dynamic> getAllPastData = [];
+
+  bool _hasNetwork = true;
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
+  final CarouselSliderController _carouselController =
+      CarouselSliderController();
+  int _currentCarouselIndex = 0;
+
+  final List<String> carouselItems = [
+    'assets/gdg/gdg_5.jpg',
+    'assets/leo/leo_2.jpg',
+    'assets/red/red_6.jpg',
+    'assets/rot/rot_5.jpg',
+  ];
+
+  final List<String> defaultCategories = [
+    'assets/ROT.png',
+    'assets/GDG.jpg',
+    'assets/IEEE.png',
+    'assets/NSS.png',
+    'assets/RED.png',
+    'assets/RED.png'
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _animationController.forward();
+
+    _checkNetworkAndLoad();
+
+    Connectivity().onConnectivityChanged.listen((result) {
+      final hasNetworkNow = result != ConnectivityResult.none;
+      if (hasNetworkNow && !_hasNetwork) {
+        _loadAllData();
+      }
+      setState(() {
+        _hasNetwork = hasNetworkNow;
+      });
+    });
+  }
+
+  Future<void> _checkNetworkAndLoad() async {
+    final result = await Connectivity().checkConnectivity();
+    setState(() {
+      _hasNetwork = result != ConnectivityResult.none;
+    });
+    _loadAllData();
+  }
+
+  Future<void> _loadAllData() async {
+    if (!_hasNetwork) return;
+    await Future.wait([
+      getAllClubsData(),
+      getAllLiveResponse(),
+      getAllUpcomingResponse(),
+      getAllPastResponse(),
+    ]);
+  }
+
+  Future<void> getAllClubsData() async {
+    try {
+      final res = await authService.getAllClubsData();
+
+      if (res.containsKey('status') && res['status'] == true) {
+        setState(() {
+          allData = res['clubs'];
+        });
+      } else {
+        setState(() {
+          allData = [];
+        });
+        if (_hasNetwork) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(res['msg'])));
+        }
+      }
+    } catch (_) {
+      // Network failure → show default clubs
+      setState(() {
+        allData = List.generate(
+            6,
+            (index) => {
+                  'clubId': 'Club ${index + 1}',
+                  'name': 'Club ${index + 1}',
+                });
+      });
+    }
+  }
+
+  Future<void> getAllLiveResponse() async {
+    try {
+      final response = await authServices.getAllLiveData();
+      if (response.containsKey('status') && response['status'] == true) {
+        setState(() {
+          getAllLiveData = response['ongoing events'];
+        });
+      }
+    } catch (_) {}
+  }
+
+  Future<void> getAllUpcomingResponse() async {
+    try {
+      final response = await authServices.getAllupComingData();
+      if (response.containsKey('status') && response['status'] == true) {
+        setState(() {
+          getAllupComingData = response['upcoming events'];
+        });
+      }
+    } catch (_) {}
+  }
+
+  Future<void> getAllPastResponse() async {
+    try {
+      final response = await authServices.getAllPastData();
+      if (response.containsKey('status') && response['status'] == true) {
+        setState(() {
+          getAllPastData = response['past events'];
+        });
+      }
+    } catch (_) {}
+  }
+
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getAllClubsData();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-    _animationController.forward();
-    getAllLiveResponse();
-    getAllUpcomingResponse();
-    getAllPastResponse();
-  }
-
-  void getAllLiveResponse() async {
-    final response = await authServices.getAllLiveData();
-    if (response.containsKey('status') && response['status'] == true) {
-      setState(() {
-        getAllLiveData = response['ongoing events'];
-      });
-    }
-  }
-
-  void getAllUpcomingResponse() async {
-    final response = await authServices.getAllupComingData();
-    if (response.containsKey('status') && response['status'] == true) {
-      setState(() {
-        getAllupComingData = response['upcoming events'];
-      });
-    }
-  }
-
-  void getAllPastResponse() async {
-    final response = await authServices.getAllPastData();
-    if (response.containsKey('status') && response['status'] == true) {
-      setState(() {
-        getAllPastData = response['past events'];
-      });
-    }
-  }
-
+  // ================= Drawer =================
   Drawer _buildDrawer(BuildContext context) {
-    // print('https://info.aec.edu.in/AEC/StudentPhotos/${Shared().rollNo}.jpg');
     return Drawer(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.white,
@@ -118,12 +180,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             currentAccountPicture: Container(
               height: 100,
               width: 100,
-              // color: ,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
               ),
-
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: CachedNetworkImage(
@@ -131,18 +191,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       'https://info.aec.edu.in/AEC/StudentPhotos/${Shared().rollNo}.jpg',
                   placeholder: (context, url) => CircularProgressIndicator(),
                   errorWidget: (context, url, error) {
-                    print('Image load error: $error');
                     return Icon(Icons.error, size: 40, color: Colors.red);
                   },
                   fit: BoxFit.cover,
                 ),
               ),
-
-              // Image.network('https://info.aec.edu.in/AEC/StudentPhotos/22a91a0565.jpg')
             ),
             decoration: BoxDecoration(
-              color: Color(
-                  0xFF040737), // Change this to your desired background color
+              color: const Color(0xFF040737),
             ),
           ),
           ListTile(
@@ -153,59 +209,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ListTile(
             leading: const Icon(Icons.event, color: Color(0xFF040737)),
             title: const Text('Events'),
-            onTap: () {
-              Navigator.pop(context);
-              //   Navigator.push(
-              //     context,
-              //     MaterialPageRoute(builder: (context) =>Allpastevents()
-              //  ),
-              //   );
-            },
+            onTap: () => Navigator.pop(context),
           ),
           ListTile(
             leading: const Icon(Icons.settings, color: Color(0xFF040737)),
             title: const Text('Settings'),
-            onTap: () {
-              Navigator.pop(context);
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => Allpastevents()),
-              // );
-            },
+            onTap: () => Navigator.pop(context),
           ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.contact_page, color: Color(0xFF040737)),
             title: const Text('Contact Us'),
-            onTap: () {
-              Navigator.pop(context);
-              // Navigator.push(
-              //   context,
-              //  MaterialPageRoute(builder: (context) => Allpastevents()),
-              // );
-            },
+            onTap: () => Navigator.pop(context),
           ),
           ListTile(
             leading: const Icon(Icons.help, color: Color(0xFF040737)),
             title: const Text('Help & Support'),
-            onTap: () {
-              Navigator.pop(context);
-              // Navigator.push(
-              //   context,
-              //  MaterialPageRoute(builder: (context) => Allpastevents()),
-              // );
-            },
+            onTap: () => Navigator.pop(context),
           ),
           ListTile(
             leading: const Icon(Icons.feedback, color: Color(0xFF040737)),
             title: const Text('Feedback'),
-            onTap: () {
-              Navigator.pop(context);
-              // Navigator.push(
-              //   context,
-              //  MaterialPageRoute(builder: (context) => Allpastevents()),
-              // );
-            },
+            onTap: () => Navigator.pop(context),
           ),
           const Divider(),
           ListTile(
@@ -225,34 +250,36 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  // ================= AppBar =================
   SliverAppBar _buildAppBar(ThemeData theme) {
     return SliverAppBar(
+      iconTheme: const IconThemeData(color: Colors.white),
       floating: true,
       snap: true,
-      backgroundColor: Color(0xff040737),
+      backgroundColor: const Color(0xff040737),
       elevation: 0,
-      title: Center(
-        child: Transform.translate(
-          offset: const Offset(0, 0), // Adjust the vertical offset as needed
-          child: Image.asset(
-            'assets/AU_1.png',
-            height: 90, // just logo size as needed
-            fit: BoxFit.contain,
-          ),
-        ),
+      centerTitle: true,
+      title: Image.asset(
+        'assets/AU_1.png',
+        height: 90,
+        fit: BoxFit.contain,
       ),
-      // actions: [
-      //   _buildNotificationBadge(),
-      // ],
+      actions: [_buildNotificationBadge()],
     );
   }
 
+  Widget _buildNotificationBadge() {
+    return const SizedBox(
+        width: 48,
+        height: 48,
+        child: Opacity(opacity: 0, child: Icon(Iconsax.notification)));
+  }
+
+  // ================= Carousel =================
   Widget _buildCarouselSection(Size size) {
     return Column(
       children: [
-        SizedBox(
-          height: 5,
-        ),
+        const SizedBox(height: 5),
         CarouselSlider(
           items: carouselItems
               .map((item) => _buildCarouselItem(item, size))
@@ -260,12 +287,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           options: CarouselOptions(
             height: size.height * 0.25,
             autoPlay: true,
-            autoPlayAnimationDuration: Duration(milliseconds: 1000),
+            autoPlayAnimationDuration: const Duration(milliseconds: 1000),
             enlargeCenterPage: true,
             viewportFraction: 0.9,
-            onPageChanged: (index, reason) {
-              setState(() => _currentCarouselIndex = index);
-            },
+            onPageChanged: (index, reason) =>
+                setState(() => _currentCarouselIndex = index),
           ),
           carouselController: _carouselController,
         ),
@@ -284,10 +310,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.cover),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            spreadRadius: 2,
-          ),
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              spreadRadius: 2)
         ],
       ),
       child: Container(
@@ -296,31 +321,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           gradient: LinearGradient(
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
-            colors: [
-              Colors.black.withOpacity(0.6),
-              Colors.transparent,
-            ],
-          ),
-        ),
-        child: Align(
-          alignment: Alignment.bottomLeft,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              ' ',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                shadows: [
-                  Shadow(
-                    color: Colors.black.withOpacity(0.3),
-                    blurRadius: 4,
-                    offset: const Offset(2, 2),
-                  ),
-                ],
-              ),
-            ),
+            colors: [Colors.black.withOpacity(0.6), Colors.transparent],
           ),
         ),
       ),
@@ -334,13 +335,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return GestureDetector(
           onTap: () => _carouselController.jumpToPage(entry.key),
           child: Container(
-            width: 8.0,
-            height: 8.0,
+            width: 8,
+            height: 8,
             margin: const EdgeInsets.symmetric(horizontal: 4.0),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: _currentCarouselIndex == entry.key
-                  ? Color(0xFF040737)
+                  ? const Color(0xFF040737)
                   : Colors.grey.withOpacity(0.4),
             ),
           ),
@@ -349,30 +350,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSectionHeader(String title, {VoidCallback? onSeeAll}) {
+  // ================= Sections =================
+  Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          // if (onSeeAll != null)
-          // TextButton(
-          //   onPressed: onSeeAll,
-          //   child: const Text('See All'),
-          // ),
-        ],
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
   }
 
   Widget _buildCategoryRow() {
+    if (!_hasNetwork) {
+      return Column(
+        children: [
+          const Text("No network connection. Showing default clubs."),
+          const SizedBox(height: 10),
+        ],
+      );
+    }
+
     return SizedBox(
       height: 120,
       child: ListView.separated(
@@ -386,307 +384,126 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildCategoryItem(int index) {
-    final List<String> categories = [
-      'assets/ROT.png',
-      'assets/GDG.jpg',
-      'assets/IEEE.png',
-      'assets/NSS.png',
-      'assets/RED.png',
-      'assets/RED.png'
-    ];
+    final club = allData[index];
+    final image = defaultCategories[index % defaultCategories.length];
 
     return Column(
       children: [
         GestureDetector(
           onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ClubsScreen_a(
-                        name: allData[index]['name'],
-                        clubId: allData[index]['clubId'])));
+            if (_hasNetwork) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ClubsScreen_a(
+                          name: club['name'], clubId: club['clubId'])));
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("No network connection")));
+            }
           },
           child: Container(
             width: 70,
             height: 70,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white,
-                width: 2,
-              ),
-            ),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2)),
             child: ClipOval(
               child: Image.asset(
-                categories[index],
+                image,
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: double.infinity,
-                errorBuilder: (context, error, stackTrace) => Icon(
-                  Icons.error,
-                  color: Colors.red,
-                  size: 30,
-                ),
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.error, color: Colors.red, size: 30),
               ),
             ),
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          allData[index]['clubId'],
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
+          club['clubId'],
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
         ),
       ],
     );
   }
 
-  Widget _buildNewsList() {
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: 3,
-      separatorBuilder: (_, __) => const SizedBox(height: 15),
-      itemBuilder: (context, index) => _buildNewsCard(index),
-    );
-  }
+  // ================= Event Sections =================
+  Widget _buildEventSection(List<dynamic> data) {
+    if (data.isEmpty) {
+      return Center(child: Image.asset('assets/noevent.jpg'));
+    }
 
-  Widget _buildNewsCard(int index) {
-    final List<Map<String, dynamic>> newsItems = [
-      {
-        'title': 'New Club Registration Open',
-        'excerpt': 'Register your new student organization before April 30...',
-        'date': '2h ago'
-      },
-      {
-        'title': 'Annual Fest Schedule Released',
-        'excerpt':
-            'Check out the complete schedule for this year\'s college fest...',
-        'date': '5h ago'
-      },
-      {
-        'title': 'Leadership Workshop Results',
-        'excerpt':
-            'View the results of the inter-college leadership workshop...',
-        'date': '1d ago'
-      },
-    ];
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Color(0xFF040737).withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child:
-                    const Icon(Iconsax.info_circle, color: Color(0xFF040737)),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      newsItems[index]['title'],
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    Text(
-                      newsItems[index]['date'],
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            newsItems[index]['excerpt'],
-            style: TextStyle(
-              color: Colors.grey.shade700,
-              fontSize: 13,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildListeningSection() {
-    return getAllLiveData.isEmpty
-        ? Center(
-            child: Image.asset('assets/noevent.jpg'),
-          )
-        : SizedBox(
-            width: 150,
-            height: 150,
-            child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: getAllLiveData.length,
-                itemBuilder: (context, index) {
-                  return _buildListeningCard(
-                      getAllLiveData[index]['image'] == null
-                          ? 'https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D'
-                          : getAllLiveData[index]['image'],
-                      getAllLiveData[index]['eventName']);
-                }),
-          );
-  }
-
-  Widget _buildListeningCard(String imagePath, String episode) {
-    return GestureDetector(
-        onTap: () async {
-          List<dynamic> list = [];
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          final response = await AuthService().getEventDetailsByName(episode);
-          if (response.containsKey('status') && response['status'] == true) {
-            print('getEventDetailsByName:$response');
-            setState(() {
-              list = response['eventDetails'];
-            });
-            final event = response['eventDetails'][0];
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => ClubsScreena(
-                        clubId: event['clubId'],
-                        clubName: event['clubName'],
-                        eventName: event['eventName'],
-                        date: DateTime.parse(event['date']),
-                        location: event['location'],
-                        description: event['details'],
-                        list: List<String>.from(event['guest']),
-                        rollNo: Shared().rollNo,
-                        imageUrl: event['image'] == null
-                            ? 'https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D'
-                            : event['image'])));
-          }
+    return SizedBox(
+      width: 150,
+      height: 150,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: data.length,
+        itemBuilder: (context, index) {
+          final event = data[index];
+          final image = event['image'] ??
+              'https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D';
+          return _buildEventCard(image, event['eventName']);
         },
-        child: Container(
-          width: 150,
-          margin: const EdgeInsets.only(left: 16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            image: DecorationImage(
-              image: NetworkImage(imagePath),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Align(
-            alignment: Alignment.bottomLeft,
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              color: Colors.black54,
-              child: Text(
-                episode,
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+      ),
+    );
+  }
+
+  Widget _buildEventCard(String imagePath, String eventName) {
+    return GestureDetector(
+      onTap: () async {
+        if (!_hasNetwork) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("No network connection")),
+          );
+          return;
+        }
+        List<dynamic> list = [];
+        final response = await AuthService().getEventDetailsByName(eventName);
+        if (response.containsKey('status') && response['status'] == true) {
+          list = response['eventDetails'];
+          final event = list[0];
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ClubsScreena(
+                clubId: event['clubId'],
+                clubName: event['clubName'],
+                eventName: event['eventName'],
+                date: DateTime.parse(event['date']),
+                location: event['location'],
+                description: event['details'],
+                list: List<String>.from(event['guest']),
+                rollNo: Shared().rollNo,
+                imageUrl: event['image'] ??
+                    'https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D',
               ),
             ),
-          ),
-        ));
-  }
-
-  Widget _buildKnowledgeSection() {
-    return getAllupComingData.isEmpty
-        ? Center(
-            child: Image.asset('assets/noevent.jpg'),
-          )
-        : SizedBox(
-            width: 150,
-            height: 150,
-            child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: getAllupComingData.length,
-                itemBuilder: (context, index) {
-                  return _buildListeningCard(
-                      getAllupComingData[index]['image'] == null
-                          ? 'https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D'
-                          : getAllupComingData[index]['image'],
-                      getAllupComingData[index]['eventName']);
-                }),
           );
-  }
-
-  Widget _buildledgeSection() {
-    return getAllPastData.isEmpty
-        ? Center(
-            child: Image.asset('assets/noevent.jpg'),
-          )
-        : SizedBox(
-            width: 150,
-            height: 150,
-            child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: getAllPastData.length,
-                itemBuilder: (context, index) {
-                  return _buildListeningCard(
-                      getAllPastData[index]['image'] == null
-                          ? 'https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D'
-                          : getAllPastData[index]['image'],
-                      getAllPastData[index]['eventName']);
-                }),
-          );
-  }
-
-  Widget _buildNotificationBadge() {
-    return Stack(
-      children: [
-        IconButton(
-            icon: Icon(Iconsax.notification, color: Colors.white),
-            onPressed: () => () {}),
-        Positioned(
-          right: 8,
-          top: 7,
+        }
+      },
+      child: Container(
+        width: 150,
+        margin: const EdgeInsets.only(left: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          image: DecorationImage(
+              image: NetworkImage(imagePath), fit: BoxFit.cover),
+        ),
+        child: Align(
+          alignment: Alignment.bottomLeft,
           child: Container(
-            padding: const EdgeInsets.all(2),
-            decoration: const BoxDecoration(
-              color: Colors.red,
-              shape: BoxShape.circle,
-            ),
-            constraints: const BoxConstraints(
-              minWidth: 13,
-              minHeight: 13,
-            ),
-            child: const Text(
-              '3',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
+            padding: const EdgeInsets.all(8),
+            color: Colors.black54,
+            child: Text(
+              eventName,
+              style: const TextStyle(color: Colors.white, fontSize: 12),
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 
@@ -703,46 +520,34 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           _buildAppBar(theme),
           SliverList(
             delegate: SliverChildListDelegate([
+              if (!_hasNetwork)
+                Container(
+                  width: double.infinity,
+                  color: Colors.red,
+                  padding: const EdgeInsets.all(8),
+                  child: const Text(
+                    'No network connection. Showing default data.',
+                    style: TextStyle(color: Colors.white),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               _buildCarouselSection(size),
               const SizedBox(height: 24),
-              _buildSectionHeader('Clubs', onSeeAll: () {
-                // Navigator.push(
-                //   context,
-                //         MaterialPageRoute(builder: (context) => Allpastevents()),
-                // );
-              }),
+              _buildSectionHeader('Clubs'),
               _buildCategoryRow(),
-              _buildSectionHeader('🔴Live Events', onSeeAll: () {
-                // Navigator.push(
-                //   context,
-                //         MaterialPageRoute(builder: (context) => Allpastevents()),
-                // );
-              }),
-              _buildListeningSection(),
+              _buildSectionHeader('🔴 Live Events'),
+              _buildEventSection(getAllLiveData),
               const SizedBox(height: 20),
-              _buildSectionHeader('Upcooming Events', onSeeAll: () {
-                // Navigator.push(
-                //   context,
-                //         MaterialPageRoute(builder: (context) =>Allpastevents()),
-                // );
-              }),
-              _buildKnowledgeSection(),
+              _buildSectionHeader('Upcoming Events'),
+              _buildEventSection(getAllupComingData),
               const SizedBox(height: 18),
-              _buildSectionHeader(' Past Events', onSeeAll: () {
-                // Navigator.push(
-                //   context,
-                //         MaterialPageRoute(builder: (context) => Allpastevents()),
-                // );
-              }),
-              _buildledgeSection(),
-              const SizedBox(height: 18),
+              _buildSectionHeader('Past Events'),
+              _buildEventSection(getAllPastData),
               const SizedBox(height: 20),
             ]),
           ),
         ],
       ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      // bottomNavigationBar: _buildBottomAppBar(theme),
     );
   }
 }

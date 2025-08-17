@@ -749,32 +749,82 @@ class _ClubsEventScreenState extends State<ClubsEventScreen> {
           );
   }
 
-  Widget _buildListeningCard(String imagePath, String episode) {
+  // Widget _buildListeningCard(String imagePath, String episode) {
+  //   return GestureDetector(
+  //     onTap: () async {
+  //       List<dynamic> list = [];
+  //       final response = await AuthService().getEventDetailsByName(episode);
+  //       if (response.containsKey('status') && response['status'] == true) {
+  //         print('getEventDetailsByName:$response');
+  //         setState(() {
+  //           list = response['eventDetails'];
+  //         });
+  //         final event = response['eventDetails'][0];
+  //         Navigator.push(
+  //             context,
+  //             MaterialPageRoute(
+  //                 builder: (context) => ClubsScreena(
+  //                     clubId: widget.clubId,
+  //                     clubName: widget.clubName,
+  //                     eventName: event['eventName'],
+  //                     date: DateTime.parse(event['date']),
+  //                     location: event['location'],
+  //                     description: event['details'],
+  //                     list: List<String>.from(event['guest']),
+  //                     rollNo: Shared().token,
+  //                     imageUrl: event['image'] == null
+  //                         ? 'https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D'
+  //                         : event['image'])));
+  //       }
+  //     },
+  //     child: Container(
+  //       width: 150,
+  //       margin: const EdgeInsets.only(left: 16),
+  //       decoration: BoxDecoration(
+  //         borderRadius: BorderRadius.circular(10),
+  //         image: DecorationImage(
+  //           image: NetworkImage(episode),
+  //           fit: BoxFit.cover,
+  //         ),
+  //       ),
+  //       child: Align(
+  //         alignment: Alignment.bottomLeft,
+  //         child: Container(
+  //           padding: const EdgeInsets.all(8),
+  //           color: Colors.black54,
+  //           child: Text(
+  //             episode,
+  //             style: const TextStyle(color: Colors.white, fontSize: 12),
+  //           ),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  Widget _buildListeningCard(String imageUrl, String episodeName) {
     return GestureDetector(
       onTap: () async {
-        List<dynamic> list = [];
-        final response = await AuthService().getEventDetailsByName(episode);
+        final response = await AuthService().getEventDetailsByName(episodeName);
         if (response.containsKey('status') && response['status'] == true) {
-          print('getEventDetailsByName:$response');
-          setState(() {
-            list = response['eventDetails'];
-          });
           final event = response['eventDetails'][0];
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ClubsScreena(
-                      clubId: widget.clubId,
-                      clubName: widget.clubName,
-                      eventName: event['eventName'],
-                      date: DateTime.parse(event['date']),
-                      location: event['location'],
-                      description: event['details'],
-                      list: List<String>.from(event['guest']),
-                      rollNo: Shared().token,
-                      imageUrl: event['image'] == null
-                          ? 'https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D'
-                          : event['image'])));
+            context,
+            MaterialPageRoute(
+              builder: (context) => ClubsScreena(
+                clubId: widget.clubId,
+                clubName: widget.clubName,
+                eventName: event['eventName'],
+                date: DateTime.parse(event['date']),
+                location: event['location'],
+                description: event['details'],
+                list: List<String>.from(event['guest']),
+                rollNo: Shared().token,
+                imageUrl: event['image'] ??
+                    'https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D',
+              ),
+            ),
+          );
         }
       },
       child: Container(
@@ -783,7 +833,11 @@ class _ClubsEventScreenState extends State<ClubsEventScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           image: DecorationImage(
-            image: NetworkImage(episode),
+            image: NetworkImage(
+              imageUrl.isNotEmpty
+                  ? imageUrl
+                  : 'https://via.placeholder.com/150',
+            ),
             fit: BoxFit.cover,
           ),
         ),
@@ -793,7 +847,7 @@ class _ClubsEventScreenState extends State<ClubsEventScreen> {
             padding: const EdgeInsets.all(8),
             color: Colors.black54,
             child: Text(
-              episode,
+              episodeName,
               style: const TextStyle(color: Colors.white, fontSize: 12),
             ),
           ),
@@ -801,68 +855,6 @@ class _ClubsEventScreenState extends State<ClubsEventScreen> {
       ),
     );
   }
-
-// Widget _buildListeningCard(String imageUrl, String episode) {
-//   return GestureDetector(
-//     onTap: () async {
-//       final response = await AuthService().getEventDetailsByName(episode);
-//       if (response.containsKey('status') && response['status'] == true) {
-//         final event = response['eventDetails'][0];
-//         Navigator.push(
-//           context,
-//           MaterialPageRoute(
-//             builder: (context) => ClubsScreena(
-//               clubId: widget.clubId,
-//               clubName: widget.clubName,
-//               eventName: event['eventName'],
-//               date: DateTime.parse(event['date']),
-//               location: event['location'],
-//               description: event['details'],
-//               list: List<String>.from(event['guest']),
-//               rollNo: Shared().token,
-//               imageUrl: event['image'] ??
-//                   'https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D',
-//             ),
-//           ),
-//         );
-//       }
-//     },
-//     child: Container(
-//       width: 150,
-//       margin: const EdgeInsets.only(left: 16),
-//       child: ClipRRect(
-//         borderRadius: BorderRadius.circular(10),
-//         child: Image.network(
-//           imageUrl,
-//           fit: BoxFit.cover,
-//           // shimmer while loading
-//           loadingBuilder: (context, child, loadingProgress) {
-//             if (loadingProgress == null) {
-//               return child; // ✅ image loaded → return real image
-//             }
-//             return Shimmer.fromColors(
-//               baseColor: Colors.grey[300]!,
-//               highlightColor: Colors.grey[100]!,
-//               child: Container(
-//                 height: 200,
-//                 width: double.infinity,
-//                 color: Colors.white,
-//               ),
-//             );
-//           },
-//           // fallback if image fails
-//           errorBuilder: (context, error, stackTrace) {
-//             return Container(
-//               height: 200,
-//               color: Colors.grey[300],
-//               child: const Icon(Icons.broken_image, color: Colors.grey),
-//             );
-//           },
-//         ),
-//       ),
-//     ),
-//   );
-// }
 
   Widget _buildledgeSection(List<dynamic> list) {
     return list.isEmpty
