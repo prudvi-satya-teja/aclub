@@ -13,7 +13,8 @@ class PasswordReset extends StatefulWidget {
 
 class _PasswordResetState extends State<PasswordReset> {
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   bool _isNewPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
@@ -39,39 +40,40 @@ class _PasswordResetState extends State<PasswordReset> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-            widget.rollNumber != null && widget.rollNumber!.isNotEmpty
-                ? "Password Reset Successful for Roll Number: ${widget.rollNumber}!"
-                : "Password Reset Successful!"
-        ),
+        content: Text(widget.rollNumber != null && widget.rollNumber!.isNotEmpty
+            ? "Password Reset Successful for Roll Number: ${widget.rollNumber}!"
+            : "Password Reset Successful!"),
       ),
-
     );
-      MaterialApp(
-        routes: {
-          '/': (context) => PasswordReset(),
-          '/login': (context) => SimpleLoginScreen(),
-        },
-      );
+    MaterialApp(
+      routes: {
+        '/': (context) => PasswordReset(),
+        '/login': (context) => SimpleLoginScreen(),
+      },
+    );
+  }
 
-    }
-
-
-    void resetPassword() async {
+  void resetPassword() async {
     final response = await authService.resetPass(
-        widget.rollNumber ?? "",
-         _newPasswordController.text.trim(),// Use an empty string if rollNumber is null
+      widget.rollNumber ?? "",
+      _newPasswordController.text
+          .trim(), // Use an empty string if rollNumber is null
     );
 
     if (response.containsKey('status') && response['status'] == true) {
       _submit();
-      Navigator.push(context,MaterialPageRoute(builder: (context)=>(SimpleLoginScreen())));
+      // Navigator.push(context,MaterialPageRoute(builder: (context)=>(SimpleLoginScreen())));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => SimpleLoginScreen()),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(response['msg'] ?? "Enter valid details")),
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
@@ -94,20 +96,23 @@ class _PasswordResetState extends State<PasswordReset> {
                 top: screenHeight * 0.05,
                 left: screenWidth * 0.30,
                 child: Image.asset(
-                  'assets/ACLUB.png'
-                  ,
+                  'assets/ACLUB.png',
                   height: screenHeight / 10,
                   width: screenWidth / 3,
                 ),
               ),
               Positioned(
-                left: screenHeight*0.017,
-                bottom: screenHeight*0.14,
+                left: screenHeight * 0.017,
+                bottom: screenHeight * 0.14,
                 child: GestureDetector(
-                    onTap: (){
+                    onTap: () {
                       Navigator.pop(context);
-                    },child: Icon(Icons.arrow_back,size: 30,color: Colors.white,)
-                ),
+                    },
+                    child: Icon(
+                      Icons.arrow_back,
+                      size: 30,
+                      color: Colors.white,
+                    )),
               )
             ],
           ),
@@ -116,27 +121,32 @@ class _PasswordResetState extends State<PasswordReset> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children: [
-                   SizedBox(height:screenHeight*0.15),
+                  SizedBox(height: screenHeight * 0.15),
                   TextField(
                     controller: _newPasswordController,
                     decoration: InputDecoration(
                       labelText: 'Enter New Password',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(color: Color(0xFF040737), width: 1),
+                        borderSide:
+                            BorderSide(color: Color(0xFF040737), width: 1),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(color: Color(0xFF040737), width: 2),
+                        borderSide:
+                            BorderSide(color: Color(0xFF040737), width: 2),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(color: Color(0xFF040737),width: 1),
+                        borderSide:
+                            BorderSide(color: Color(0xFF040737), width: 1),
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _isNewPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                            color: Color(0xFF040737),
+                          _isNewPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Color(0xFF040737),
                         ),
                         onPressed: () {
                           setState(() {
@@ -154,24 +164,30 @@ class _PasswordResetState extends State<PasswordReset> {
                       labelText: 'Confirm Password',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(color: Color(0xFF040737), width: 1),
+                        borderSide:
+                            BorderSide(color: Color(0xFF040737), width: 1),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(color: Color(0xFF040737), width: 2),
+                        borderSide:
+                            BorderSide(color: Color(0xFF040737), width: 2),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide(color: Color(0xFF040737), width: 1),
+                        borderSide:
+                            BorderSide(color: Color(0xFF040737), width: 1),
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                          _isConfirmPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                           color: Color(0xFF040737),
                         ),
                         onPressed: () {
                           setState(() {
-                            _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                            _isConfirmPasswordVisible =
+                                !_isConfirmPasswordVisible;
                           });
                         },
                       ),
@@ -191,7 +207,11 @@ class _PasswordResetState extends State<PasswordReset> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    child: const Text('Submit', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w500)),
+                    child: const Text('Submit',
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500)),
                   ),
                 ],
               ),
@@ -208,8 +228,10 @@ class WaveClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     Path path = Path();
     path.lineTo(0, size.height - 50);
-    path.quadraticBezierTo(size.width / 4, size.height, size.width / 2, size.height - 50);
-    path.quadraticBezierTo(3 * size.width / 4, size.height - 100, size.width, size.height - 50);
+    path.quadraticBezierTo(
+        size.width / 4, size.height, size.width / 2, size.height - 50);
+    path.quadraticBezierTo(
+        3 * size.width / 4, size.height - 100, size.width, size.height - 50);
     path.lineTo(size.width, 0);
     return path;
   }
