@@ -26,7 +26,7 @@ class _ClubsScreen_aState extends State<ClubsScreen_a>
     liveEvents();
     upComingEvents();
     pastEvents();
-    getAllClubMembers();
+    getTeamMembers();
   }
 
   late TabController _tabController;
@@ -69,10 +69,10 @@ class _ClubsScreen_aState extends State<ClubsScreen_a>
   }
 
   //getAllClubMemebrs
-  void getAllClubMembers() async {
-    final response = await authService.getAllClubMembers(widget.clubId);
+  void getTeamMembers() async {
+    final response = await authService.getTeamMembers(widget.clubId);
     if (response.containsKey('status') && response['status'] == true) {
-      print('getAllClubMembers:$response');
+      print('getTeamMembers:$response');
       setState(() {
         clubMembersList = response['members'];
       });

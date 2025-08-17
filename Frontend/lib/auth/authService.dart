@@ -379,6 +379,20 @@ class AuthService {
     return jsonDecode(res.body);
   }
 
+  //get Team ClubMembers
+  Future<Map<String, dynamic>> getTeamMembers(String clubId) async {
+    final res = await http.get(
+      Uri.parse('$baseUrl/users/get-team?clubId=$clubId'),
+      headers: {
+        "Authorization": "Bearer ${Shared().token}",
+        'Content-Type': 'application/json'
+      },
+    );
+    print('response code:${res.statusCode}');
+    print('response body:${res.body}');
+    return jsonDecode(res.body);
+  }
+
 //delete the club members
   Future<Map<String, dynamic>> deleteClubMember(
       String rollNo, String role) async {
