@@ -6,12 +6,12 @@ const { events } = require('../models/participation_model');
 // to create event
 const createEvent = async(req, res) => {
     console.log("controller body", req.body);
-    if(!req.body.clubId || !req.body.eventName) {
+    if(!req.user.clubId || !req.body.eventName) {
         return res.status(400).json({"status": false, "msg": "please enter details "});
     }
     console.log(req.body);
     console.log(req.file);
-    const club = await Club.findOne({clubId: req.body.clubId});
+    const club = await Club.findOne({clubId: req.user.clubId});
     if(!club) {
         return res.status(400).json({"status": false, "msg": "club doesn't exists"});
     }
@@ -24,7 +24,7 @@ const createEvent = async(req, res) => {
 
     const imageUrl = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/${req.file?.path}`;
 
-    console.log(req.body.clubId);
+    console.log(req.user.clubId);
 
     console.log(club);
     
