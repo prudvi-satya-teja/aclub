@@ -33,7 +33,7 @@ const restrictToLoggedUserOnly = async(req, res, next) => {
     }
 }   
 
-const whichClubAdmin = (clubs) => {
+const whichClubAdmin = async (clubs) => {
     console.log("Checking clubs:", JSON.stringify(clubs, null, 2)); 
 
     const adminClub = clubs.find(club => {
@@ -128,7 +128,7 @@ const restrictToAdminOnly = async(req, res, next) => {
         // req.user = user;
         // req.body.rollNo = rollNo;
         req.body.isAdmin = decodedToken.admin;
-        const adminClub = whichClubAdmin(clubs);
+        const adminClubId = await whichClubAdmin(clubs);
 
         req.user = {
           ...decodedToken,
