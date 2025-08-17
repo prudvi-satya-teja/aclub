@@ -327,7 +327,6 @@ class AuthService {
       "date": date,
       "guest": guest,
       "location": location,
-      "clubId": clubId,
       "mainTheme": mainTheme,
       "details": details,
     });
