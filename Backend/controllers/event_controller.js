@@ -24,7 +24,10 @@ const createEvent = async(req, res) => {
 
     const imageUrl = `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/${req.file?.path}`;
 
+    console.log(req.body.clubId);
 
+    console.log(club);
+    
     const eventDetails = {
         clubId: club._id,
         eventName: req.body.eventName,
