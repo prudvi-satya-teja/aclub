@@ -37,70 +37,8 @@ class _ClubsScreenState extends State<ClubsScreena>
   late TabController _tabController;
 
   AuthService authService = AuthService();
-// void showDeleteDialog(BuildContext context, String eventName) {
-//   showDialog(
-//     context: context,
-//     barrierDismissible: false, // Prevent dismissing while deleting
-//     builder: (BuildContext context) {
-//       bool isLoading = false;
 
-//       return StatefulBuilder(
-//         builder: (context, setState) {
-//           return AlertDialog(
-//             title: Text("Delete Event"),
-//             content: isLoading
-//                 ? Column(
-//                     mainAxisSize: MainAxisSize.min,
-//                     children: [
-//                       CircularProgressIndicator(),
-//                       SizedBox(height: 10),
-//                       Text("Deleting event..."),
-//                     ],
-//                   )
-//                 : Text("Are you sure you want to delete $eventName?"),
-//             actions: isLoading
-//                 ? []
-//                 : [
-//                     TextButton(
-//                       onPressed: () {
-//                         Navigator.pop(context); // Close dialog
-//                       },
-//                       child: Text("Cancel"),
-//                     ),
-//                     TextButton(
-//                       onPressed: () async {
-//                         setState(() => isLoading = true);
-
-//                         final response = await authService.deleteEvent(eventName);
-
-//                         setState(() => isLoading = false);
-
-//                         if (response['status'] == "true") {
-//                           ScaffoldMessenger.of(context).showSnackBar(
-//                             SnackBar(
-//                               backgroundColor: Colors.green,
-//                               content: Text(response['msg']),
-//                             ),
-//                           );
-//                          Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
-//                         } else {
-//                           ScaffoldMessenger.of(context).showSnackBar(
-//                             SnackBar(
-//                               backgroundColor: Colors.red,
-//                               content: Text(response['msg'] ?? "Failed to delete Event."),
-//                             ),
-//                           );
-//                         }
-//                       },
-//                       child: Text("Delete", style: TextStyle(color: Colors.red)),
-//                     ),
-//                   ],
-//           );
-//         },
-//       );
-//     },
-//   );
-// }
+  
 void showDeleteDialog(BuildContext context, String eventName) {
   showDialog(
     context: context,

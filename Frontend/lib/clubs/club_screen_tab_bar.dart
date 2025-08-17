@@ -4,6 +4,8 @@ import '../events/detailedallpast.dart';
 import '../rollno.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+
+import 'package:shimmer/shimmer.dart';
 // import 'package:aclub/events/detailedallpast.dart';
 
 /// Main Screen with TabBar and TabBarView
@@ -71,7 +73,7 @@ class _ClubsScreen_aState extends State<ClubsScreen_a>
   //getAllClubMemebrs
   void getTeamMembers() async {
     final response = await authService.getTeamMembers(widget.clubId);
-     print('getTeamMembers:$response');
+    print('getTeamMembers:$response');
     if (response.containsKey('status') && response['status'] == true) {
       print('getTeamMembers:$response');
       setState(() {
@@ -201,9 +203,10 @@ class _ClubsScreen_aState extends State<ClubsScreen_a>
           context,
           MaterialPageRoute(
             builder: (context) => DetailScreen(
-              firstName: firstName,
-              lastName: lastName,
-            ),
+                firstName: firstName,
+                lastName: lastName,
+                role: role,
+                rollNo: rollNo),
           ),
         );
       },
@@ -217,8 +220,9 @@ class _ClubsScreen_aState extends State<ClubsScreen_a>
               vertical: cardMargin, horizontal: cardMargin * 2),
           leading: CircleAvatar(
             radius: screenWidth * 0.07,
-            backgroundImage: const NetworkImage(
-                'https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
+            backgroundImage: NetworkImage(
+              'https://info.aec.edu.in/AEC/StudentPhotos/$rollNo.jpg',
+            ),
           ),
           title: Text(
             firstName,
@@ -229,10 +233,10 @@ class _ClubsScreen_aState extends State<ClubsScreen_a>
           ),
           subtitle: role == 'admin'
               ? Text(
-                  'Club Leader: $role\n Roll NO: $rollNo',
+                  'Club Leader: $role\nRoll No: $rollNo',
                 )
               : Text(
-                  'Club Member: $role\n Roll NO: $rollNo',
+                  'Club Member: $role\nRoll No: $rollNo',
                 ),
         ),
       ),
@@ -426,13 +430,19 @@ class _ClubsScreen_aState extends State<ClubsScreen_a>
   }
 }
 
-/// Detail Screen (Common for clickable cards)
 class DetailScreen extends StatelessWidget {
-  // final Map<String, dynamic> data;
   final String firstName;
   final String lastName;
-  const DetailScreen(
-      {super.key, required this.firstName, required this.lastName});
+  final String role;
+  final String rollNo;
+
+  const DetailScreen({
+    super.key,
+    required this.firstName,
+    required this.lastName,
+    required this.role,
+    required this.rollNo,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -443,37 +453,98 @@ class DetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          firstName,
+          "Details",
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () {
-              // Share functionality can be added here.
-            },
-          ),
-        ],
       ),
-      body: Padding(
-        padding: EdgeInsets.all(screenWidth * 0.05),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: avatarRadius,
-              backgroundImage: const NetworkImage(
-                  'https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'),
-            ),
-            SizedBox(height: screenWidth * 0.05),
-            Text(
-              lastName,
-              style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: screenWidth * 0.1),
-            // buildSocialIcons(context, data['social']),
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(screenWidth * 0.05),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Center(
+                child: CircleAvatar(
+                  radius: avatarRadius,
+                  backgroundImage: NetworkImage(
+                    'https://info.aec.edu.in/AEC/StudentPhotos/$rollNo.jpg',
+                  ),
+                  backgroundColor: Colors.grey.shade200,
+                ),
+              ),
+              SizedBox(height: screenWidth * 0.08),
+
+              // Full Name
+              Text(
+                "$firstName $lastName",
+                style: TextStyle(
+                  fontSize: fontSize + 2,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: screenWidth * 0.04),
+
+              // Role
+              Text(
+                role.toLowerCase() == "admin" ? "Club Leader" : "Club Member",
+                style: TextStyle(
+                  fontSize: fontSize * 0.9,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.blueGrey,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: screenWidth * 0.03),
+
+              // Roll No
+              Text(
+                "Roll No: $rollNo",
+                style: TextStyle(
+                  fontSize: fontSize * 0.8,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.black54,
+                ),
+                textAlign: TextAlign.center,
+              ),
+
+              SizedBox(height: screenWidth * 0.1),
+
+              // You can add more info below (like club details, description, etc.)
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(screenWidth * 0.05),
+                  child: Column(
+                    children: [
+                      Text(
+                        "About Member",
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: screenWidth * 0.03),
+                      Text(
+                        "$firstName is an active $role of the club with roll number $rollNo. They play an important role in managing and contributing to club activities.",
+                        style: TextStyle(
+                          fontSize: fontSize * 0.75,
+                          color: Colors.black87,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -730,6 +801,68 @@ class _ClubsEventScreenState extends State<ClubsEventScreen> {
       ),
     );
   }
+
+// Widget _buildListeningCard(String imageUrl, String episode) {
+//   return GestureDetector(
+//     onTap: () async {
+//       final response = await AuthService().getEventDetailsByName(episode);
+//       if (response.containsKey('status') && response['status'] == true) {
+//         final event = response['eventDetails'][0];
+//         Navigator.push(
+//           context,
+//           MaterialPageRoute(
+//             builder: (context) => ClubsScreena(
+//               clubId: widget.clubId,
+//               clubName: widget.clubName,
+//               eventName: event['eventName'],
+//               date: DateTime.parse(event['date']),
+//               location: event['location'],
+//               description: event['details'],
+//               list: List<String>.from(event['guest']),
+//               rollNo: Shared().token,
+//               imageUrl: event['image'] ??
+//                   'https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D',
+//             ),
+//           ),
+//         );
+//       }
+//     },
+//     child: Container(
+//       width: 150,
+//       margin: const EdgeInsets.only(left: 16),
+//       child: ClipRRect(
+//         borderRadius: BorderRadius.circular(10),
+//         child: Image.network(
+//           imageUrl,
+//           fit: BoxFit.cover,
+//           // shimmer while loading
+//           loadingBuilder: (context, child, loadingProgress) {
+//             if (loadingProgress == null) {
+//               return child; // ✅ image loaded → return real image
+//             }
+//             return Shimmer.fromColors(
+//               baseColor: Colors.grey[300]!,
+//               highlightColor: Colors.grey[100]!,
+//               child: Container(
+//                 height: 200,
+//                 width: double.infinity,
+//                 color: Colors.white,
+//               ),
+//             );
+//           },
+//           // fallback if image fails
+//           errorBuilder: (context, error, stackTrace) {
+//             return Container(
+//               height: 200,
+//               color: Colors.grey[300],
+//               child: const Icon(Icons.broken_image, color: Colors.grey),
+//             );
+//           },
+//         ),
+//       ),
+//     ),
+//   );
+// }
 
   Widget _buildledgeSection(List<dynamic> list) {
     return list.isEmpty
