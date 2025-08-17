@@ -51,7 +51,9 @@ const registrationStatus = async (req, res) => {
             return res.status(400).json({ status: false, msg: "event doesn't exists" });
         }
 
-        const user = await User.findOne({ rollNo: req.query.rollNo });
+        console.log(req.body.rollNo);
+
+        const user = await User.findOne({ rollNo: req.body.rollNo });
 
         if (!user) {
             return res.status(400).json({ status: false, msg: "please enter valid rollno" });

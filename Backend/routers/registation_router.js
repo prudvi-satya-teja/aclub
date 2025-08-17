@@ -16,7 +16,7 @@ router.post('/give-feedback',  registrationController.giveFeedback);
 router.get('/registered-users', registrationController.getAllRegisteredUsers);
 
 // to check user registered or not
-router.get('/registration-status',registrationController.registrationStatus);
+router.get('/registration-status', authMiddleware.restrictToLoggedUserOnly,registrationController.registrationStatus);
 
 // get event feedback
 router.get('/get-feedback', registrationController.getEventFeedback);

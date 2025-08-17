@@ -38,7 +38,7 @@ class _ClubsScreenState extends State<ClubsScreena>
 
   AuthService authService = AuthService();
 
-  
+
 void showDeleteDialog(BuildContext context, String eventName) {
   showDialog(
     context: context,
@@ -257,7 +257,7 @@ class _EventDetailsTabState extends State<EventDetailsTab> {
 
   void registerStatus() async {
     final response =
-        await authService.regestrationStatus(widget.eventName,Shared().token);
+        await authService.regestrationStatus(widget.eventName);
     if (response.containsKey('status') && response['status'] == true) {
       setState(() {
         _isRegister = true; // Update UI
