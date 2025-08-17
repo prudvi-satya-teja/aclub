@@ -1,63 +1,71 @@
-const mongoose = require('mongoose');
-const User = require('../models/user_model');
-const Participation  = require('../models/participation_model');
-const bcrypt = require('bcrypt');
-const Club = require('../models/club_model');
+const mongoose = require("mongoose");
+const User = require("../models/user_model");
+const Participation = require("../models/participation_model");
+const bcrypt = require("bcrypt");
+const Club = require("../models/club_model");
 
 // to add user
-const addUser = async(req, res) => {
+const addUser = async (req, res) => {
     try {
-      console.log(req.body.rollNo);
-        if(!req.body.firstName || !req.body.rollNo || !req.body.clubId ) {
-            return res.status(200).json({"status" : false, "msg": "Please enter all details not found "});
-        }      
-
-        const club = await Club.findOne({clubId: req.body.clubId});
-        if(!club) {
-            return res.status(400).json({"status": false, "msg": "club not found"});
+        console.log(req.body.rollNo);
+        if (!req.body.firstName || !req.body.rollNo || !req.body.clubId) {
+            return res
+                .status(200)
+                .json({ status: false, msg: "Please enter all details not found " });
         }
 
-        var user = await User.findOne({rollNo: req.body.rollNo});
+        const club = await Club.findOne({ clubId: req.body.clubId });
+        if (!club) {
+            return res.status(400).json({ status: false, msg: "club not found" });
+        }
 
+        var user = await User.findOne({ rollNo: req.body.rollNo });
 
-        if(!user) {
+        if (!user) {
             console.log(req.body);
             // if(!req.body.phoneNo || !await User.findOne({phoneNo: req.body.phoneNo})) {
             //     return res.status(400).json({"status": false, "msg": "Phone no already exists or null"});
             // }
             var userData = {
-                firstName: req.body.firstName, 
-                lastName: req.body.lastName, 
-                rollNo: req.body.rollNo,  
-                phoneNo: req.body.phoneNo, 
-                password: await bcrypt.hash(req.body.password? req.body.password : "aclub@12", 12)
-            }
-            
+                firstName: req.body.firstName,
+                lastName: req.body.lastName,
+                rollNo: req.body.rollNo,
+                phoneNo: req.body.phoneNo,
+                password: await bcrypt.hash(req.body.password ? req.body.password : "aclub@12", 12),
+            };
+
             var newUser = new User(userData);
             user = await newUser.save();
         }
 
         console.log("user", user);
-        
+
         var participationData = {
-            clubId : club._id,
-            userId : user._id,
-        }
+            clubId: club._id,
+            userId: user._id,
+        };
 
-        var role = req.body.role ? req.body.role: "user";
+        var role = req.body.role ? req.body.role : "user";
 
-        console.log(participationData)
+        console.log(participationData);
         var participation = await Participation.findOne(participationData);
-        console.log(participation)
-        if(participation) {
-            if(participation.role == req.body.role) {
-                return res.status(200).json({"status": false, "msg": "User already exists in the club"});
+        console.log(participation);
+        if (participation) {
+            if (participation.role == req.body.role) {
+                return res
+                    .status(200)
+                    .json({ status: false, msg: "User already exists in the club" });
+            } else {
+                var result = await Participation.findOneAndUpdate(participation, {
+                    role: req.body.role,
+                });
+                return res.status(400).json({
+                    status: true,
+                    msg: "User updated with the provided role",
+                    user: user,
+                    participation: result,
+                });
             }
-            else {
-                var result = await Participation.findOneAndUpdate(participation,  {role: req.body.role});
-                return res.status(400).json({"status": true, "msg": "User updated with the provided role", "user": user, "participation": result});
-            }
-
         }
         // else {
         //     participationData.role = req.body.role ? req.body.role: "user";
@@ -66,106 +74,122 @@ const addUser = async(req, res) => {
         //     return res.status(400).json({"status": true, "msg": "Participation created successful", "user": user, "participation": result});
         // }
 
-        var newParticipation = new Participation({clubId: club._id, userId: user._id, role: role } );
-        console.log("new participation" ,newParticipation);
-        var resultParticipation =await  newParticipation.save();
+        var newParticipation = new Participation({
+            clubId: club._id,
+            userId: user._id,
+            role: role,
+        });
+        console.log("new participation", newParticipation);
+        var resultParticipation = await newParticipation.save();
         // console.log(resultParticipation);
-        return res.status(200).json({"status": true, "msg": "User Creation Successful", "participation": resultParticipation, "user": user});
-    }
-    catch(err) {
+        return res.status(200).json({
+            status: true,
+            msg: "User Creation Successful",
+            participation: resultParticipation,
+            user: user,
+        });
+    } catch (err) {
         console.error(err);
-        return res.status(500).json({"status": false, "msg": "Server Error" });
+        return res.status(500).json({ status: false, msg: "Server Error" });
     }
-}
+};
 
-// to get user details  // need to add club and their roles 
-const getUserDetails = async(req, res) => {
+// to get user details  // need to add club and their roles
+const getUserDetails = async (req, res) => {
     try {
         console.log(req.body.rollNo);
-        var user = await User.findOne({rollNo: req.body.rollNo});
+        var user = await User.findOne({ rollNo: req.body.rollNo });
         console.log("body", req.body);
-        if(!user) {
-            return res.status(400).json({"status": false, "msg": "Please enter valid rollno"});
+        if (!user) {
+            return res.status(400).json({ status: false, msg: "Please enter valid rollno" });
         }
 
         console.log(user._id);
 
         var userDetails = await User.aggregate([
             {
-              '$match': {
-                '_id': user._id
-              }
-            }, {
-              '$lookup': {
-                'from': 'participations', 
-                'localField': '_id', 
-                'foreignField': 'userId', 
-                'as': 'result'
-              }
-            }, {
-              '$unwind': {
-                'path': '$result'
-              }
-            }, {
-              '$lookup': {
-                'from': 'clubs', 
-                'localField': 'result.clubId', 
-                'foreignField': '_id', 
-                'as': 'result2'
-              }
-            }, {
-              '$unwind': {
-                'path': '$result2'
-              }
-            }, {
-              '$group': {
-                '_id': '$rollNo', 
-                'firstName': {
-                  '$first': '$firstName'
-                }, 
-                'lastName': {
-                  '$first': '$lastName'
-                }, 
-                'phoneNo': {
-                  '$first': '$phoneNo'
-                }, 
-                // 'password': {
-                //   '$first': '$password'
-                // }, 
-                'clubs': {
-                  '$push': {
-                    'clubId': '$result2.clubId', 
-                    'role': '$result.role'
-                  }
-                }
-              }
-            }
-          ]);
+                $match: {
+                    _id: user._id,
+                },
+            },
+            {
+                $lookup: {
+                    from: "participations",
+                    localField: "_id",
+                    foreignField: "userId",
+                    as: "result",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$result",
+                },
+            },
+            {
+                $lookup: {
+                    from: "clubs",
+                    localField: "result.clubId",
+                    foreignField: "_id",
+                    as: "result2",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$result2",
+                },
+            },
+            {
+                $group: {
+                    _id: "$rollNo",
+                    firstName: {
+                        $first: "$firstName",
+                    },
+                    lastName: {
+                        $first: "$lastName",
+                    },
+                    phoneNo: {
+                        $first: "$phoneNo",
+                    },
+                    // 'password': {
+                    //   '$first': '$password'
+                    // },
+                    clubs: {
+                        $push: {
+                            clubId: "$result2.clubId",
+                            role: "$result.role",
+                        },
+                    },
+                },
+            },
+        ]);
         console.log(user);
 
         if (userDetails.length === 0) {
-          userDetails = [{
-              rollNo: user.rollNo,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              phoneNo: user.phoneNo,
-              clubs: []
-          }];
-      }
-        
+            userDetails = [
+                {
+                    rollNo: user.rollNo,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    phoneNo: user.phoneNo,
+                    clubs: [],
+                },
+            ];
+        }
+
         console.log("userdetaisl", userDetails);
 
-        if(!user) {
-            return res.status(500).json({"status": true, "msg": "user not exists"});
+        if (!user) {
+            return res.status(500).json({ status: true, msg: "user not exists" });
         }
         // need to get the club participated and their roles
-        return res.status(500).json({"status": true,  "msg": "Successfully get user details", "details": userDetails});
-    }
-    catch(err) {
+        return res
+            .status(500)
+            .json({ status: true, msg: "Successfully get user details", details: userDetails });
+    } catch (err) {
         console.log(err);
-        return res.status(500).json({"status": false, "msg": ""})
+        return res.status(500).json({ status: false, msg: "" });
     }
-}
+};
 
 // const getUserDetails = async (req, res) => {
 //     try {
@@ -292,7 +316,7 @@ const getUserDetails = async(req, res) => {
 //         }
 
 //         const user = await User.findOne({rollNo: req.body.rollNo});
-        
+
 //         if(!user) {
 //             return res.status(400).json({"status": false, "msg": "User doesn't exist"});
 //         }
@@ -305,7 +329,7 @@ const getUserDetails = async(req, res) => {
 //         var userData = {
 //             role : req.body
 //         }
-    
+
 //         var newUser = new User(userData);
 //         var resultUser = await Participation.findOneAndUpdate(user, newUser);
 //         console.log(resultUser);
@@ -317,42 +341,49 @@ const getUserDetails = async(req, res) => {
 //     }
 // }
 const updateUser = async (req, res) => {
-  try {
-      if (!req.body.rollNo || !req.body.role) {
-          return res.status(400).json({ "status": false, "msg": "Please enter rollNo and new role" });
-0      }
+    try {
+        if (!req.body.rollNo || !req.body.role) {
+            return res.status(400).json({ status: false, msg: "Please enter rollNo and new role" });
+            0;
+        }
 
-      // Find the user by roll number
-      const user = await User.findOne({ rollNo: req.body.rollNo });
+        // Find the user by roll number
+        const user = await User.findOne({ rollNo: req.body.rollNo });
 
-      if (!user) {
-          return res.status(400).json({ "status": false, "msg": "User doesn't exist" });
-      }
+        if (!user) {
+            return res.status(400).json({ status: false, msg: "User doesn't exist" });
+        }
 
-      // Find the user's participation entry
-      var participation = await Participation.findOne({ userId: user._id });
+        // Find the user's participation entry
+        var participation = await Participation.findOne({ userId: user._id });
 
-      if (!participation) {
-          return res.status(400).json({ "status": false, "msg": "User is not a member, admin, or coordinator" });
-0      }
+        if (!participation) {
+            return res
+                .status(400)
+                .json({ status: false, msg: "User is not a member, admin, or coordinator" });
+            0;
+        }
 
-      // Update the role field in Participation
-      var updatedParticipation = await Participation.findOneAndUpdate(
-          { userId: user._id },  // Find by userId
-          { $set: { role: req.body.role } },  // Update role field
-          { new: true }  // Return updated document
-      );
+        // Update the role field in Participation
+        var updatedParticipation = await Participation.findOneAndUpdate(
+            { userId: user._id }, // Find by userId
+            { $set: { role: req.body.role } }, // Update role field
+            { new: true } // Return updated document
+        );
 
-      if (!updatedParticipation) {
-          return res.status(500).json({ "status": false, "msg": "Failed to update role" });
-      }
+        if (!updatedParticipation) {
+            return res.status(500).json({ status: false, msg: "Failed to update role" });
+        }
 
-      return res.status(200).json({ "status": true, "msg": "User role updated successfully", "updatedData": updatedParticipation });
-  }
-  catch (err) {
-      console.log(err);
-      return res.status(500).json({ "status": false, "msg": "Server Error", "error": err.message });
-  }
+        return res.status(200).json({
+            status: true,
+            msg: "User role updated successfully",
+            updatedData: updatedParticipation,
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ status: false, msg: "Server Error", error: err.message });
+    }
 };
 
 // to delete user
@@ -361,7 +392,7 @@ const updateUser = async (req, res) => {
 //         if(!req.body.rollNo) {
 //             return res.status(400).json({"status": false , "msg": "Please enter valid Details"});
 //         }
-        
+
 //         var user = await User.findOne({rollNo: req.body.rollNo});
 //         if(!user) {
 //             return res.status(400).json({"status": false ,"msg": "User doesn't exist" });
@@ -373,7 +404,7 @@ const updateUser = async (req, res) => {
 //         }
 
 //         console.log(club);
- 
+
 //         var participation = await Participation.findOne({clubId: club._id, rollNo: req.body.rollNo});
 //         if(!participation) {
 //             return res.status(400).json({"status": false, "msg": `User is not a member of the ${req.body.clubId}`})
@@ -427,7 +458,9 @@ const deleteUser = async (req, res) => {
         // Find user participation in the club
         const participation = await Participation.findOne({ clubId: club._id, userId: user._id });
         if (!participation) {
-            return res.status(400).json({ status: false, msg: `User is not a member of the club ${clubId}` });
+            return res
+                .status(400)
+                .json({ status: false, msg: `User is not a member of the club ${clubId}` });
         }
 
         // Count the user's participations
@@ -442,76 +475,133 @@ const deleteUser = async (req, res) => {
         }
 
         return res.status(200).json({ status: true, msg: "User deletion successful" });
-
     } catch (err) {
         console.error(err);
         return res.status(500).json({ status: false, msg: "Server Error" });
     }
 };
 
-// to get all users  // need to write the aggregations
-const getAllUsers = async(req, res) => {
+// to get team users  // need to write the aggregations
+const getTeam = async (req, res) => {
     try {
-        var club = await  Club.findOne({clubId: req.query.clubId});
+        var club = await Club.findOne({ clubId: req.query.clubId });
+        console.log(req.query.clubId);
         console.log(req.query);
-        if(!club) {
-            return res.status(500).json({"status": "fail", "msg": "Please enter valid clubId"})
+        if (!club) {
+            return res.status(500).json({ status: "fail", msg: "Please enter valid clubId" });
         }
         console.log(club);
         // need to write oreectly
-        var users = await  Participation.aggregate(
-          [
+        var users = await Participation.aggregate([
             {
-              '$match': {
-                'clubId': club._id
-              }
-            }, {
-              '$project': {
-                'userId': 1, 
-                'role': 1, 
-                '_id': 0
-              }
-            }, {
-              '$lookup': {
-                'from': 'users', 
-                'localField': 'userId', 
-                'foreignField': '_id', 
-                'as': 'user'
-              }
-            }, {
-              '$unwind': {
-                'path': '$user'
-              }
-            }, {
-              '$project': {
-                'rollno': '$user.rollNo', 
-                'name': '$user.firstName', 
-                'role': '$role',
-                'phoneNo': '$user.phoneNo'
-              }
+                $match: {
+                    clubId: club._id,
+                    $or: [{ role: "coordinator" }, { role: "admin" }],
+                },
             },
             {
-              '$sort': {
-                'role': 1
-              }
-            }
-          ]
-        );
-        
-        return res.status(200).json({"status": "Success", "msg": "Successful get all users", "users": users});
-    }
-    catch(err) {
-        console.error(err);
-        return res.status(500).json({"status": "fail", "msg": "Server Error"});
-    }
+                $lookup: {
+                    from: "users",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "details",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$details",
+                },
+            },
+            {
+                $project: {
+                    role: 1,
+                    firstName: "$details.firstName",
+                    lastName: "$details.lastName",
+                    rollNo: "$details.rollNo",
+                    phoneNo: "$details.phoneNo",
+                },
+            },
+            {
+                $sort: {
+                    role: 1,
+                },
+            },
+        ]);
 
-}
+        return res
+            .status(200)
+            .json({ status: "Success", msg: "Successful get all users", members : users });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ status: "fail", msg: "Server Error" });
+    }
+};
+
+// to get all users  // need to write the aggregations
+const getAllUsers = async (req, res) => {
+    try {
+        var club = await Club.findOne({ clubId: req.query.clubId });
+        console.log(req.query);
+        if (!club) {
+            return res.status(500).json({ status: "fail", msg: "Please enter valid clubId" });
+        }
+        console.log(club);
+        // need to write oreectly
+        var users = await Participation.aggregate([
+            {
+                $match: {
+                    clubId: club._id,
+                },
+            },
+            {
+                $project: {
+                    userId: 1,
+                    role: 1,
+                    _id: 0,
+                },
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "user",
+                },
+            },
+            {
+                $unwind: {
+                    path: "$user",
+                },
+            },
+            {
+                $project: {
+                    rollno: "$user.rollNo",
+                    name: "$user.firstName",
+                    role: "$role",
+                    phoneNo: "$user.phoneNo",
+                },
+            },
+            {
+                $sort: {
+                    role: 1,
+                },
+            },
+        ]);
+
+        return res
+            .status(200)
+            .json({ status: "Success", msg: "Successful get all users", users: users });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ status: "fail", msg: "Server Error" });
+    }
+};
 
 module.exports = {
     addUser,
     getUserDetails,
     updateUser,
     deleteUser,
-    getAllUsers
-}
-
+    getAllUsers,
+    getTeam,
+};
