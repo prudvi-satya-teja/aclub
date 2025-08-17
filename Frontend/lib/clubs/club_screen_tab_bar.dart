@@ -412,7 +412,6 @@ class _ClubsScreen_aState extends State<ClubsScreen_a>
             ],
           ),
 
-
           // Tab 3: About section (non-clickable UI)
           ListView.builder(
             itemCount: 1,

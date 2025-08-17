@@ -527,6 +527,8 @@ const getTeam = async (req, res) => {
                 },
             },
         ]);
+        console.log(" club is : ", club._id);
+        console.log("members is : ", users);
 
         return res
             .status(200)
