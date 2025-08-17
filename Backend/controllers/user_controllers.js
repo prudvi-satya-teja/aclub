@@ -532,7 +532,7 @@ const getTeam = async (req, res) => {
 
         return res
             .status(200)
-            .json({ status: "Success", msg: "Successful get all users", members : users });
+            .json({ status: true, msg: "Successful get all users", members: users });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ status: "fail", msg: "Server Error" });
