@@ -128,12 +128,19 @@ const restrictToAdminOnly = async(req, res, next) => {
         // req.user = user;
         // req.body.rollNo = rollNo;
         req.body.isAdmin = decodedToken.admin;
-        req.body.clubId = whichClubAdmin(clubs);
+        const adminClub = whichClubAdmin(clubs);
+
+        req.user = {
+          ...decodedToken,
+          rollNo,
+          isAdmin: decodedToken.admin,
+          clubId: adminClubId
+        };
         
         console.log("func call" ,whichClubAdmin(clubs));
         console.log("middelware body after update", req.body);
 
-        console.log("final clbuId is ", req.body);
+        console.log("final clbuId is req.user =>  ", req.user);
 
         next();  
 
