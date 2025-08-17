@@ -133,6 +133,8 @@ const restrictToAdminOnly = async(req, res, next) => {
         console.log("func call" ,whichClubAdmin(clubs));
         console.log("middelware body after update", req.body);
 
+        console.log("final clbuId is ", req.body);
+
         next();  
 
     }
