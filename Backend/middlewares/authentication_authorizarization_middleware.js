@@ -41,6 +41,8 @@ const whichClubAdmin = (clubs) => {
         return club.role === "admin"; 
     });
 
+    console.log("which club admian page", adminClub);
+
     return adminClub ? adminClub.clubId : null; 
 };
 
