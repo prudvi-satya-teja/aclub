@@ -4,6 +4,7 @@ import 'package:aclub/home/homepage.dart';
 import '../auth/authService.dart';
 import '../rollno.dart';
 import 'package:flutter/material.dart';
+
 /// Main Screen with Tabs
 class ClubsScreena extends StatefulWidget {
   final String clubId;
@@ -12,7 +13,7 @@ class ClubsScreena extends StatefulWidget {
   final DateTime date;
   final String location;
   final String description;
-  final List<String>list;
+  final List<String> list;
   final String rollNo;
   final String imageUrl;
   const ClubsScreena({
@@ -38,82 +39,79 @@ class _ClubsScreenState extends State<ClubsScreena>
 
   AuthService authService = AuthService();
 
+// void showDeleteDialog(BuildContext context, String eventName) {
+//   showDialog(
+//     context: context,
+//     barrierDismissible: false, // Prevent dismissing while deleting
+//     builder: (BuildContext context) {
+//       bool isLoading = false;
 
-void showDeleteDialog(BuildContext context, String eventName) {
-  showDialog(
-    context: context,
-    barrierDismissible: false, // Prevent dismissing while deleting
-    builder: (BuildContext context) {
-      bool isLoading = false;
+//       return StatefulBuilder(
+//         builder: (context, setState) {
+//           return AlertDialog(
+//             title: Text("Delete Event"),
+//             content: isLoading
+//                 ? Column(
+//                     mainAxisSize: MainAxisSize.min,
+//                     children: [
+//                       CircularProgressIndicator(),
+//                       SizedBox(height: 10),
+//                       Text("Deleting event..."),
+//                     ],
+//                   )
+//                 : Text("Are you sure you want to delete $eventName?"),
+//             actions: isLoading
+//                 ? []
+//                 : [
+//                     TextButton(
+//                       onPressed: () {
+//                         Navigator.pop(context); // Close dialog
+//                       },
+//                       child: Text("Cancel"),
+//                     ),
+//                     TextButton(
+//                       onPressed: () async {
+//                         setState(() => isLoading = true);
 
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: Text("Delete Event"),
-            content: isLoading
-                ? Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 10),
-                      Text("Deleting event..."),
-                    ],
-                  )
-                : Text("Are you sure you want to delete $eventName?"),
-            actions: isLoading
-                ? []
-                : [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context); // Close dialog
-                      },
-                      child: Text("Cancel"),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        setState(() => isLoading = true);
+//                         final response = await authService.deleteEvent(eventName);
 
-                        final response = await authService.deleteEvent(eventName);
+//                         if (response['status'] == "true") {
+//                           ScaffoldMessenger.of(context).showSnackBar(
+//                             SnackBar(
+//                               backgroundColor: Colors.green,
+//                               content: Text(response['msg']),
+//                             ),
+//                           );
 
-                        if (response['status'] == "true") {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: Colors.green,
-                              content: Text(response['msg']),
-                            ),
-                          );
+//                           // Close dialog
+//                           Navigator.pop(context);
 
-                          // Close dialog
-                          Navigator.pop(context);
+//                           // Navigate back to HomeScreen and refresh
+//                           Navigator.pushAndRemoveUntil(
+//                             context,
+//                             MaterialPageRoute(builder: (context) => HomeScreen()),
+//                             (route) => false, // Remove all previous screens
+//                           );
+//                         } else {
+//                           setState(() => isLoading = false);
 
-                          // Navigate back to HomeScreen and refresh
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) => HomeScreen()),
-                            (route) => false, // Remove all previous screens
-                          );
-                        } else {
-                          setState(() => isLoading = false);
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: Colors.red,
-                              content: Text(response['msg'] ?? "Failed to delete Event."),
-                            ),
-                          );
-                        }
-                      },
-                      child: Text("Delete", style: TextStyle(color: Colors.red)),
-                    ),
-                  ],
-          );
-        },
-      );
-    },
-  );
-}
-
-
+//                           ScaffoldMessenger.of(context).showSnackBar(
+//                             SnackBar(
+//                               backgroundColor: Colors.red,
+//                               content: Text(response['msg'] ?? "Failed to delete Event."),
+//                             ),
+//                           );
+//                         }
+//                       },
+//                       child: Text("Delete", style: TextStyle(color: Colors.red)),
+//                     ),
+//                   ],
+//           );
+//         },
+//       );
+//     },
+//   );
+// }
 
   @override
   void initState() {
@@ -131,93 +129,96 @@ void showDeleteDialog(BuildContext context, String eventName) {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-  title: Text(
-    '${widget.clubName} Event',
-    style: const TextStyle(
-      color: Colors.white,
-      fontWeight: FontWeight.bold,
-      letterSpacing: 1.5,
-    ),
-  ),
-  centerTitle: true,
-  backgroundColor: Color(0xFF040737),
-  actions: [
-    if (Shared().isAdmin && Shared().clubId == widget.clubId ) // Show menu only if user is admin
-      PopupMenuButton<String>(
-        icon: Icon(Icons.more_vert, color: Colors.white),
-        onSelected: (value) {
-          if (value == 'update') {
-            // Call update event function
-            print("Update Event Clicked");
-          } else if (value == 'delete') {
-            // Call delete event function
-            print("Delete Event Clicked");
-          }
-        },
-        itemBuilder: (context) => [
-          PopupMenuItem(
-            value: 'update',
-            child: Row(
-              children: [
-                Icon(Icons.edit, color: Colors.black54),
-                SizedBox(width: 8),
-                GestureDetector(onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>UpdateEventScreen(eventName: widget.eventName, list:widget.list , location: widget.location , details: widget.description, dateTime: widget.date)));
-
-
-                },
-                  child: Text('Update Event')),
-              ],
-            ),
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          '${widget.clubName} Event',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
           ),
-         PopupMenuItem(
-  value: 'delete',
-  child: Row(
-    children: [
-      Icon(Icons.delete, color: Colors.red),
-      SizedBox(width: 8),
-      GestureDetector(
-        onTap: () {
-          showDeleteDialog(context, widget.eventName);
-        },
-        child: Text('Delete Event'),
-      ),
-    ],
-  ),
-),
+        ),
+        centerTitle: true,
+        backgroundColor: Color(0xFF040737),
+//   actions: [
+//     if (Shared().isAdmin && Shared().clubId == widget.clubId ) // Show menu only if user is admin
+//       PopupMenuButton<String>(
+//         icon: Icon(Icons.more_vert, color: Colors.white),
+//         onSelected: (value) {
+//           if (value == 'update') {
+//             // Call update event function
+//             print("Update Event Clicked");
+//           } else if (value == 'delete') {
+//             // Call delete event function
+//             print("Delete Event Clicked");
+//           }
+//         },
+//         itemBuilder: (context) => [
+//           PopupMenuItem(
+//             value: 'update',
+//             child: Row(
+//               children: [
+//                 Icon(Icons.edit, color: Colors.black54),
+//                 SizedBox(width: 8),
+//                 GestureDetector(onTap: (){
+//                   Navigator.push(context, MaterialPageRoute(builder: (context)=>UpdateEventScreen(eventName: widget.eventName, list:widget.list , location: widget.location , details: widget.description, dateTime: widget.date)));
 
-        ],
-      ),
-  ],
-  bottom: TabBar(
-    controller: _tabController,
-    indicatorColor: Color.fromARGB(255, 252, 252, 252),
-    labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-    labelColor: Colors.white,
-    unselectedLabelColor: Colors.white70,
-    tabs: const [
-      Tab(text: 'Event Details', icon: Icon(Icons.event, color: Colors.white)),
-      Tab(text: 'Members', icon: Icon(Icons.group, color: Colors.white)),
-      Tab(text: 'Feedbacks', icon: Icon(Icons.feedback, color: Colors.white)),
-    ],
-  ),
-),
+//                 },
+//                   child: Text('Update Event')),
+//               ],
+//             ),
+//           ),
+//          PopupMenuItem(
+//   value: 'delete',
+//   child: Row(
+//     children: [
+//       Icon(Icons.delete, color: Colors.red),
+//       SizedBox(width: 8),
+//       GestureDetector(
+//         onTap: () {
+//           showDeleteDialog(context, widget.eventName);
+//         },
+//         child: Text('Delete Event'),
+//       ),
+//     ],
+//   ),
+// ),
 
+//         ],
+//       ),
+//   ],
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Color.fromARGB(255, 252, 252, 252),
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
+          tabs: const [
+            Tab(
+                text: 'Event Details',
+                icon: Icon(Icons.event, color: Colors.white)),
+            Tab(text: 'Members', icon: Icon(Icons.group, color: Colors.white)),
+            Tab(
+                text: 'Feedbacks',
+                icon: Icon(Icons.feedback, color: Colors.white)),
+          ],
+        ),
+      ),
       body: TabBarView(
         controller: _tabController,
         children: [
           EventDetailsTab(
             eventName: widget.eventName,
-            date: widget.date ,
+            date: widget.date,
             location: widget.location,
             description: widget.description,
             imageUrl: widget.imageUrl,
           ),
-           MembersTab(eventName: widget.eventName),
+          MembersTab(eventName: widget.eventName),
           FeedbackTab(
             rollNo: widget.rollNo,
             eventName: widget.eventName,
-            date:widget.date ,
+            date: widget.date,
             location: widget.location,
           ),
         ],
@@ -232,19 +233,19 @@ class EventDetailsTab extends StatefulWidget {
   final DateTime date;
   final String location;
   final String description;
-final String imageUrl;
-  const EventDetailsTab({
-    super.key,
-    required this.eventName,
-    required this.date,
-    required this.location,
-    required this.description,
-    required this.imageUrl
-  });
+  final String imageUrl;
+  const EventDetailsTab(
+      {super.key,
+      required this.eventName,
+      required this.date,
+      required this.location,
+      required this.description,
+      required this.imageUrl});
 
   @override
   State<EventDetailsTab> createState() => _EventDetailsTabState();
 }
+
 class _EventDetailsTabState extends State<EventDetailsTab> {
   final AuthService authService = AuthService();
   bool _isRegister = false; // Track registration status
@@ -256,8 +257,7 @@ class _EventDetailsTabState extends State<EventDetailsTab> {
   }
 
   void registerStatus() async {
-    final response =
-        await authService.regestrationStatus(widget.eventName);
+    final response = await authService.regestrationStatus(widget.eventName);
     if (response.containsKey('status') && response['status'] == true) {
       setState(() {
         _isRegister = true; // Update UI
@@ -272,7 +272,7 @@ class _EventDetailsTabState extends State<EventDetailsTab> {
 
   void registerEvent() async {
     final response =
-        await authService.registerEvent(widget.eventName,Shared().token);
+        await authService.registerEvent(widget.eventName, Shared().token);
     if (response.containsKey('status') && response['status'] == true) {
       setState(() {
         _isRegister = true; // Update status after successful registration
@@ -305,17 +305,15 @@ class _EventDetailsTabState extends State<EventDetailsTab> {
             height: 200,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              image:  DecorationImage(
+              image: DecorationImage(
                 image: NetworkImage(widget.imageUrl),
                 fit: BoxFit.cover,
               ),
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            'Event: ${widget.eventName}',
-            style: Theme.of(context).textTheme.titleLarge
-          ),
+          Text('Event: ${widget.eventName}',
+              style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
           Text(
             'Date: ${widget.date.day}/${widget.date.month}/${widget.date.year} | Location: ${widget.location}',
@@ -332,14 +330,17 @@ class _EventDetailsTabState extends State<EventDetailsTab> {
             children: [
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _isRegister ?  Color(0xFFFFFF) :  Color(0xFF040737),
+                  backgroundColor:
+                      _isRegister ? Color(0xFFFFFF) : Color(0xFF040737),
                 ),
                 onPressed: _isRegister
                     ? null // Disable button if already registered
                     : () {
                         registerEvent(); // Call register function
                       },
-                child: Text(_isRegister ? 'Registered' : 'Register',style:TextStyle(color: _isRegister?Colors.grey:Colors.white)),
+                child: Text(_isRegister ? 'Registered' : 'Register',
+                    style: TextStyle(
+                        color: _isRegister ? Colors.grey : Colors.white)),
               ),
             ],
           ),
@@ -349,26 +350,25 @@ class _EventDetailsTabState extends State<EventDetailsTab> {
   }
 }
 
-
-
 /// Tab 2: Members List
 class MembersTab extends StatefulWidget {
   final String eventName;
-  const MembersTab({super.key,required this.eventName});
+  const MembersTab({super.key, required this.eventName});
 
   @override
   State<MembersTab> createState() => _MembersTabState();
 }
 
 class _MembersTabState extends State<MembersTab> {
-    @override
+  @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getRegistered();
   }
-  final AuthService authService=AuthService();
-  List<dynamic>listMembers=[];
+
+  final AuthService authService = AuthService();
+  List<dynamic> listMembers = [];
 
   void getRegistered() async {
     final response = await authService.allRegesteredStudents(widget.eventName);
@@ -384,6 +384,7 @@ class _MembersTabState extends State<MembersTab> {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -396,15 +397,14 @@ class _MembersTabState extends State<MembersTab> {
         const SizedBox(height: 16),
         Expanded(
           child: ListView.builder(
-            itemCount:listMembers.length ,
+            itemCount: listMembers.length,
             itemBuilder: (context, index) {
               return ListTile(
-                leading:const CircleAvatar(
+                leading: const CircleAvatar(
                   radius: 25,
                 ),
-              title: Text(listMembers[index]['rollNo']),
-              subtitle: Text(listMembers[index]['name']),
-              
+                title: Text(listMembers[index]['rollNo']),
+                subtitle: Text(listMembers[index]['name']),
               );
             },
           ),
@@ -496,7 +496,7 @@ class _FeedbackTabState extends State<FeedbackTab> {
   }
 
   // Submit feedback to the backend API
-  Future<void > submitFeedback() async {
+  Future<void> submitFeedback() async {
     setState(() {
       _isLoading = true; // Start loading
     });
@@ -580,7 +580,8 @@ class _FeedbackTabState extends State<FeedbackTab> {
                     onTap: _isTextEntered ? () => _updateRating(index) : null,
                     child: Icon(
                       index < _selectedStars ? Icons.star : Icons.star_border,
-                      color: index < _selectedStars ? Colors.orange : Colors.black,
+                      color:
+                          index < _selectedStars ? Colors.orange : Colors.black,
                       size: 25,
                     ),
                   );
@@ -592,18 +593,22 @@ class _FeedbackTabState extends State<FeedbackTab> {
           Align(
             alignment: Alignment.centerRight,
             child: ElevatedButton(
-              onPressed: _isSubmitted || _selectedStars == 0 || !_isTextEntered || _isLoading
+              onPressed: _isSubmitted ||
+                      _selectedStars == 0 ||
+                      !_isTextEntered ||
+                      _isLoading
                   ? null
                   : () async {
                       await submitFeedback();
-                     setState(() {
+                      setState(() {
                         _feedbackController.clear();
-                        _selectedStars=0;
-                     }); // Wait for feedback submission
+                        _selectedStars = 0;
+                      }); // Wait for feedback submission
                     },
               child: _isLoading
                   ? CircularProgressIndicator() // Show loading spinner
-                  : Text(_isSubmitted ? 'Feedback Submitted' : 'Submit Feedback'),
+                  : Text(
+                      _isSubmitted ? 'Feedback Submitted' : 'Submit Feedback'),
             ),
           ),
           const SizedBox(height: 16),
@@ -625,7 +630,8 @@ class _FeedbackTabState extends State<FeedbackTab> {
                       child: ListTile(
                         leading: const Icon(Icons.person),
                         title: Text(feedback['rollNo'] ?? 'Unknown'),
-                        subtitle: Text(feedback['feedback'] ?? 'No feedback provided'),
+                        subtitle: Text(
+                            feedback['feedback'] ?? 'No feedback provided'),
                       ),
                     );
                   },
@@ -635,4 +641,3 @@ class _FeedbackTabState extends State<FeedbackTab> {
     );
   }
 }
-

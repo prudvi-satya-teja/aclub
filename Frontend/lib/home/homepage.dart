@@ -211,28 +211,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             title: const Text('Events'),
             onTap: () => Navigator.pop(context),
           ),
-          ListTile(
-            leading: const Icon(Icons.settings, color: Color(0xFF040737)),
-            title: const Text('Settings'),
-            onTap: () => Navigator.pop(context),
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.contact_page, color: Color(0xFF040737)),
-            title: const Text('Contact Us'),
-            onTap: () => Navigator.pop(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.help, color: Color(0xFF040737)),
-            title: const Text('Help & Support'),
-            onTap: () => Navigator.pop(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.feedback, color: Color(0xFF040737)),
-            title: const Text('Feedback'),
-            onTap: () => Navigator.pop(context),
-          ),
-          const Divider(),
+          // ListTile(
+          //   leading: const Icon(Icons.settings, color: Color(0xFF040737)),
+          //   title: const Text('Settings'),
+          //   onTap: () => Navigator.pop(context),
+          // ),
+          // const Divider(),
+          // ListTile(
+          //   leading: const Icon(Icons.contact_page, color: Color(0xFF040737)),
+          //   title: const Text('Contact Us'),
+          //   onTap: () => Navigator.pop(context),
+          // ),
+          // ListTile(
+          //   leading: const Icon(Icons.help, color: Color(0xFF040737)),
+          //   title: const Text('Help & Support'),
+          //   onTap: () => Navigator.pop(context),
+          // ),
+          // ListTile(
+          //   leading: const Icon(Icons.feedback, color: Color(0xFF040737)),
+          //   title: const Text('Feedback'),
+          //   onTap: () => Navigator.pop(context),
+          // ),
+          // const Divider(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text('Logout'),

@@ -1,12 +1,10 @@
 import '../auth/authService.dart';
-// import '../events/allpastevents.dart';
 import '../events/detailedallpast.dart';
 import '../rollno.dart';
 import 'package:flutter/material.dart';
-import 'package:iconsax/iconsax.dart';
 
+import 'package:iconsax/iconsax.dart';
 import 'package:shimmer/shimmer.dart';
-// import 'package:aclub/events/detailedallpast.dart';
 
 /// Main Screen with TabBar and TabBarView
 class ClubsScreen_a extends StatefulWidget {
@@ -142,7 +140,7 @@ class _ClubsScreen_aState extends State<ClubsScreen_a>
     super.dispose();
   }
 
-  /// Build a card for an event (non-clickable)
+  // Build a card for an event (non-clickable)
   Widget buildEventCard(BuildContext context, Map<String, dynamic> item) {
     final screenWidth = MediaQuery.of(context).size.width;
     final cardMargin = screenWidth * 0.02;
@@ -190,7 +188,7 @@ class _ClubsScreen_aState extends State<ClubsScreen_a>
     );
   }
 
-  /// Build a card for the club's bio (clickable)
+  // Build a card for the club's bio (clickable)
   Widget buildTeamCard(BuildContext context, String firstName, String role,
       String rollNo, String lastName) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -243,44 +241,6 @@ class _ClubsScreen_aState extends State<ClubsScreen_a>
     );
   }
 
-  /// Build a card for the about section (non-clickable)
-  // Widget buildAboutCard(BuildContext context, Map<String, dynamic> item) {
-  //   final screenWidth = MediaQuery.of(context).size.width;
-  //   final cardMargin = screenWidth * 0.02;
-
-  //   return Card(
-  //     margin: EdgeInsets.symmetric(
-  //         vertical: cardMargin, horizontal: cardMargin * 2),
-  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-  //     elevation: 3,
-  //     child: Padding(
-  //       padding: EdgeInsets.all(cardMargin * 2),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           Text(
-  //             item['organization'],
-  //             style: TextStyle(
-  //                 fontSize: screenWidth * 0.05, fontWeight: FontWeight.bold),
-  //           ),
-  //           const SizedBox(height: 8),
-  //           const Text(
-  //             'About this club:',
-  //             style: TextStyle(fontWeight: FontWeight.bold),
-  //           ),
-  //           const SizedBox(height: 4),
-  //           // Detailed description can be added here
-  //           const Text(
-  //             'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
-  //             'Quisque ac eros nec sapien dignissim interdum. '
-  //             'Suspendisse potenti. ',
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget buildAboutCard(BuildContext context, Map<String, dynamic> item) {
     final screenWidth = MediaQuery.of(context).size.width;
     final cardMargin = screenWidth * 0.02;
@@ -332,6 +292,7 @@ class _ClubsScreen_aState extends State<ClubsScreen_a>
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
+        iconTheme: const IconThemeData(color: Colors.white),
         title: Text(
           '${widget.name}',
           style: TextStyle(
@@ -581,28 +542,13 @@ class _ClubsEventScreenState extends State<ClubsEventScreen> {
         slivers: [
           SliverList(
             delegate: SliverChildListDelegate([
-              _buildSectionHeader('🔴Live Events', onSeeAll: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) =>Allpastevents()),
-                // );
-              }),
+              _buildSectionHeader('🔴Live Events', onSeeAll: () {}),
               _buildListeningSection(widget.liveList),
               const SizedBox(height: 20),
-              _buildSectionHeader('Upcoming Events', onSeeAll: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => Allpastevents()),
-                // );
-              }),
+              _buildSectionHeader('Upcoming Events', onSeeAll: () {}),
               _buildledgeSection(widget.upComingList),
               const SizedBox(height: 18),
-              _buildSectionHeader('Past Events', onSeeAll: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) => (Allpastevents())),
-                // );
-              }),
+              _buildSectionHeader('Past Events', onSeeAll: () {}),
               _buildPastSection(widget.pastList),
               const SizedBox(height: 20)
             ]),
@@ -631,102 +577,6 @@ class _ClubsEventScreenState extends State<ClubsEventScreen> {
     );
   }
 
-  Widget _buildNewsList() {
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: 3,
-      separatorBuilder: (_, __) => const SizedBox(height: 15),
-      itemBuilder: (context, index) => _buildNewsCard(index),
-    );
-  }
-
-  Widget _buildNewsCard(int index) {
-    final List<Map<String, dynamic>> newsItems = [
-      {
-        'title': 'New Club Registration Open',
-        'excerpt': 'Register your new student organization before April 30...',
-        'date': '2h ago'
-      },
-      {
-        'title': 'Annual Fest Schedule Released',
-        'excerpt':
-            'Check out the complete schedule for this year\'s college fest...',
-        'date': '5h ago'
-      },
-      {
-        'title': 'Leadership Workshop Results',
-        'excerpt':
-            'View the results of the inter-college leadership workshop...',
-        'date': '1d ago'
-      },
-    ];
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Iconsax.info_circle, color: Colors.blue),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      newsItems[index]['title'],
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    Text(
-                      newsItems[index]['date'],
-                      style: TextStyle(
-                        color: Color(0xFFFFFF),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            newsItems[index]['excerpt'],
-            style: TextStyle(
-              color: Color(0xFFFFFF),
-              fontSize: 13,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildListeningSection(List<dynamic> list) {
     return list.isEmpty
         ? Center(
@@ -748,59 +598,6 @@ class _ClubsEventScreenState extends State<ClubsEventScreen> {
                 }),
           );
   }
-
-  // Widget _buildListeningCard(String imagePath, String episode) {
-  //   return GestureDetector(
-  //     onTap: () async {
-  //       List<dynamic> list = [];
-  //       final response = await AuthService().getEventDetailsByName(episode);
-  //       if (response.containsKey('status') && response['status'] == true) {
-  //         print('getEventDetailsByName:$response');
-  //         setState(() {
-  //           list = response['eventDetails'];
-  //         });
-  //         final event = response['eventDetails'][0];
-  //         Navigator.push(
-  //             context,
-  //             MaterialPageRoute(
-  //                 builder: (context) => ClubsScreena(
-  //                     clubId: widget.clubId,
-  //                     clubName: widget.clubName,
-  //                     eventName: event['eventName'],
-  //                     date: DateTime.parse(event['date']),
-  //                     location: event['location'],
-  //                     description: event['details'],
-  //                     list: List<String>.from(event['guest']),
-  //                     rollNo: Shared().token,
-  //                     imageUrl: event['image'] == null
-  //                         ? 'https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D'
-  //                         : event['image'])));
-  //       }
-  //     },
-  //     child: Container(
-  //       width: 150,
-  //       margin: const EdgeInsets.only(left: 16),
-  //       decoration: BoxDecoration(
-  //         borderRadius: BorderRadius.circular(10),
-  //         image: DecorationImage(
-  //           image: NetworkImage(episode),
-  //           fit: BoxFit.cover,
-  //         ),
-  //       ),
-  //       child: Align(
-  //         alignment: Alignment.bottomLeft,
-  //         child: Container(
-  //           padding: const EdgeInsets.all(8),
-  //           color: Colors.black54,
-  //           child: Text(
-  //             episode,
-  //             style: const TextStyle(color: Colors.white, fontSize: 12),
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget _buildListeningCard(String imageUrl, String episodeName) {
     return GestureDetector(
