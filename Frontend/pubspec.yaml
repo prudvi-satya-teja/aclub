@@ -58,22 +58,20 @@ dev_dependencies:
     flutter_lints: ^5.0.0
 
 flutter_icons:
-  android: true
-  ios: true
-  image_path: "assets/logo/aclub.png"
-  android_background_color: "#040737"  # <-- your color
-  ios_background_color: "#040737" 
+    android: true
+    ios: true
+    image_path: "assets/logo/aclub.png"
+    android_background_color: "#040737" # <-- your color
+    ios_background_color: "#040737"
 
 flutter_native_splash:
-  color: "#040737"         # Your dark blue background
-  image: assets/logo/aclub.png
-  android: true
-  ios: true
+    color: "#040737" # Sets the background color
+    image: assets/logo/aclub.png # Path to your image
+    android: true
+    ios: true
+    android_gravity: center # Android image alignment (optional)
+    ios_content_mode: scaleAspectFit # iOS image scaling (optional)
 
-  # Optional (to avoid white box / full screen logo issue)
-  android_gravity: fill    # Stretches image
-  ios_content_mode: scaleAspectFill
-  
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
