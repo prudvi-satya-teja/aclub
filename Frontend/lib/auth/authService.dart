@@ -162,26 +162,7 @@ class AuthService {
     return jsonDecode(res.body);
   }
 
-  // Future<Map<String, dynamic>> regestrationStatus(
-  //     String eventName, String rollNo) async {
-  //   eventName = Uri.encodeComponent(eventName).replaceAll("+", "%20");
-  //   rollNo = rollNo.toLowerCase();
-
-  //   final res = await http.get(
-  //     Uri.parse(
-  //       '$baseUrl/registrations/registration-status?eventName=$eventName&rollNo=$rollNo',
-  //     ),
-  //     headers: {
-  //       "Authorization": "Bearer ${Shared().token}",
-  //       'Content-Type': 'application/json',
-  //     },
-  //   );
-
-  //   print('response code: ${res.statusCode}');
-  //   print('response body: ${res.body}');
-  //   return jsonDecode(res.body);
-  // }
-
+  
   //get all clubs data
   Future<Map<String, dynamic>> getAllClubsData() async {
     final res = await http.get(
