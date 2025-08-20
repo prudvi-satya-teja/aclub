@@ -50,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     'assets/IEEE.png',
     'assets/NSS.png',
     'assets/RED.png',
-    'assets/RED.png'
+    'assets/logo/cc.png'
   ];
 
   @override
